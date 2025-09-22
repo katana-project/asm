@@ -1,8 +1,8 @@
 {
-    "name": "@run-slicer/asm",
+    "name": "@katana-project/asm",
     "version": "0.17.0",
     "type": "module",
-    "author": "run-slicer",
+    "author": "katana-project",
     "license": "MIT",
     "description": "Modern age Java bytecode manipulation library for the JS ecosystem.",
     "keywords": [
