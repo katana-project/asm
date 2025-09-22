@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { type Dirent, opendirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { read } from "../";
 import { disassemble, disassembleMethod } from "./disasm";
 
@@ -10,6 +11,7 @@ describe("disassembly", () => {
                 disassemble(node, {
                     indent: "    ",
                     fullyQualified: false,
+                    verbose: true,
                 })
             );
 
@@ -20,17 +22,29 @@ describe("disassembly", () => {
                     disassembleMethod(node, method, {
                         indent: "    ",
                         fullyQualified: false,
+                        verbose: true,
                     })
                 );
             }
         });
     };
 
-    register("samples/base/sample/string/StringsDummyApp.class");
-    register("samples/base/sample/string/StringsDuplicates.class");
-    register("samples/zkm/sample/string/StringsDummyApp.class");
-    register("samples/base/sample/math/Longs.class");
-    register("samples/base/sample/misc/Exceptions.class");
-    register("samples/base/sample/misc/Annotations.class");
-    register("samples/crasher/sample/math/BinscureBinarySearch.class");
+    const walk = (path: string) => {
+        const dir = opendirSync(path);
+
+        let entry: Dirent | null;
+        while ((entry = dir.readSync()) !== null) {
+            const childPath = join(path, entry.name);
+
+            if (entry.isFile() && entry.name.endsWith(".class")) {
+                register(childPath);
+            } else if (entry.isDirectory()) {
+                walk(childPath);
+            }
+        }
+
+        dir.closeSync();
+    };
+
+    walk("./samples");
 });

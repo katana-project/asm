@@ -469,6 +469,33 @@ const splitDescs = (descs: string): string[] => {
 
 const block = (s: string, indent: string): string => s.replaceAll(/^(?!\s*$)/gm, indent);
 
+const EXCLUDED_ATTRS = new Set<string>([
+    AttributeType.CODE,
+    AttributeType.SOURCE_FILE,
+    AttributeType.SIGNATURE,
+    AttributeType.EXCEPTIONS,
+    AttributeType.CONSTANT_VALUE,
+    AttributeType.DEPRECATED,
+]);
+const disassembleAttrs = (attrib: Attributable): string => {
+    let result = "";
+    for (const attr of attrib.attrs) {
+        if (EXCLUDED_ATTRS.has(attr.name.string)) {
+            continue; // skip attributes represented in a different way
+        }
+
+        result += `// ${attr.name.string} (${attr.data.length}): `;
+        if (!attr.type) {
+            result += `(not supported)\n`;
+        } else {
+            // erase generic attribute fields
+            result += `${JSON.stringify({ ...attr, type: undefined, data: undefined, name: undefined, nameIndex: undefined, dirty: undefined })}\n`;
+        }
+    }
+
+    return result;
+};
+
 const disassembleAnnos = (attrib: Attributable, refHolder: ReferenceHolder): string => {
     let result = "";
     if (attrib.attrs.some((a) => a.name.string === AttributeType.DEPRECATED)) {
@@ -527,6 +554,7 @@ const disassembleMethod0 = (
     node: Node,
     method: Member,
     indent: string,
+    verbose: boolean,
     refHolder: ReferenceHolder,
     writeRefs: boolean
 ): string => {
@@ -537,7 +565,15 @@ const disassembleMethod0 = (
         result += `// Signature: ${escapeString((signature as SignatureAttribute).signatureEntry?.string)}\n`;
     }
 
+    if (verbose) {
+        result += disassembleAttrs(method);
+    }
+
     const code = method.attrs.find((a) => a.type === AttributeType.CODE) as CodeAttribute;
+    if (code) {
+        result += `// max stack: ${code.maxStack}, max locals: ${code.maxLocals}\n`;
+    }
+
     const isStatic = (method.access & Modifier.STATIC) !== 0;
 
     let name = method.name.string;
@@ -598,12 +634,16 @@ const disassembleMethod0 = (
     return result;
 };
 
-const disassembleField = (node: Node, field: Member, refHolder: ReferenceHolder): string => {
+const disassembleField = (node: Node, field: Member, verbose: boolean, refHolder: ReferenceHolder): string => {
     let result = "";
 
     const signature = field.attrs.find((a) => a.type === AttributeType.SIGNATURE);
     if (signature) {
         result += `// Signature: ${escapeString((signature as SignatureAttribute).signatureEntry?.string)}\n`;
+    }
+
+    if (verbose) {
+        result += disassembleAttrs(field);
     }
 
     result += disassembleAnnos(field, refHolder);
@@ -623,7 +663,7 @@ const disassembleField = (node: Node, field: Member, refHolder: ReferenceHolder)
     return result;
 };
 
-const disassemble0 = (node: Node, indent: string, refHolder: ReferenceHolder, writeRefs: boolean): string => {
+const disassemble0 = (node: Node, indent: string, verbose: boolean, refHolder: ReferenceHolder): string => {
     let nodeType = NodeType.CLASS;
     if ((node.access & Modifier.ANNOTATION) !== 0) {
         nodeType = NodeType.ANNOTATION;
@@ -649,6 +689,10 @@ const disassemble0 = (node: Node, indent: string, refHolder: ReferenceHolder, wr
         result += `// Signature: ${escapeString((signature as SignatureAttribute).signatureEntry?.string)}\n`;
     }
 
+    if (verbose) {
+        result += disassembleAttrs(node);
+    }
+
     result += disassembleAnnos(node, refHolder);
     result += formatMod(
         node.access,
@@ -668,26 +712,25 @@ const disassemble0 = (node: Node, indent: string, refHolder: ReferenceHolder, wr
 
     result += "{\n";
     for (const method of node.fields) {
-        result += block(disassembleField(node, method, refHolder), indent);
+        result += block(disassembleField(node, method, verbose, refHolder), indent);
     }
     if (node.fields.length !== 0) result += "\n"; // spacer
     for (const method of node.methods) {
-        result += block(disassembleMethod0(node, method, indent, refHolder, false), indent);
+        result += block(disassembleMethod0(node, method, indent, verbose, refHolder, false), indent);
     }
     result += "}";
 
-    if (writeRefs) {
-        const refs = refHolder.refs();
-        if (refs.length > 0) {
-            result =
-                refs
-                    .filter((r) => r !== name)
-                    .map((r) => `import ${r};`)
-                    .join("\n") +
-                "\n\n" +
-                result;
-        }
+    const refs = refHolder.refs();
+    if (refs.length > 0) {
+        result =
+            refs
+                .filter((r) => r !== name)
+                .map((r) => `import ${r};`)
+                .join("\n") +
+            "\n\n" +
+            result;
     }
+
     if (packageName) {
         result = `package ${escapeLiteral(packageName).replaceAll("/", ".")};\n\n` + result;
     }
@@ -701,23 +744,37 @@ const disassemble0 = (node: Node, indent: string, refHolder: ReferenceHolder, wr
 };
 
 export interface DisassemblyOptions {
-    indent: string; // the indentation string, defaults to 4 spaces
-    fullyQualified: boolean; // whether class references should be fully qualified, defaults to true
+    indent?: string; // the indentation string, defaults to 4 spaces
+    fullyQualified?: boolean; // whether class references should be fully qualified, defaults to true
+    verbose?: boolean; // whether to include verbose information like attributes, defaults to false
 }
 
 const defaultOptions: DisassemblyOptions = {
     indent: "    ",
     fullyQualified: true,
+    verbose: false,
 };
 
-export const disassembleMethod = (node: Node, method: Member, options: DisassemblyOptions = defaultOptions): string => {
-    const refHolder = options.fullyQualified ? emptyRefHolder : createRefHolder();
+export const disassembleMethod = (node: Node, method: Member, options: DisassemblyOptions = {}): string => {
+    const refHolder = (options.fullyQualified ?? defaultOptions.fullyQualified) ? emptyRefHolder : createRefHolder();
 
-    return disassembleMethod0(node, method, options.indent, refHolder, true);
+    return disassembleMethod0(
+        node,
+        method,
+        options.indent ?? defaultOptions.indent,
+        options.verbose ?? defaultOptions.verbose,
+        refHolder,
+        true
+    );
 };
 
-export const disassemble = (node: Node, options: DisassemblyOptions = defaultOptions): string => {
-    const refHolder = options.fullyQualified ? emptyRefHolder : createRefHolder();
+export const disassemble = (node: Node, options: DisassemblyOptions = {}): string => {
+    const refHolder = (options.fullyQualified ?? defaultOptions.fullyQualified) ? emptyRefHolder : createRefHolder();
 
-    return disassemble0(node, options.indent, refHolder, true);
+    return disassemble0(
+        node,
+        options.indent ?? defaultOptions.indent,
+        options.verbose ?? defaultOptions.verbose,
+        refHolder
+    );
 };
