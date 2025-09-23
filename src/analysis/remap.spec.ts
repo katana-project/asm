@@ -1,6 +1,7 @@
 import { opendirSync, readFileSync, type Dirent } from "node:fs";
 import { join } from "node:path";
 import { read } from "../";
+import { parseType } from "../type";
 import { remap } from "./remap";
 
 describe("remapping", () => {
@@ -10,6 +11,7 @@ describe("remapping", () => {
             const node = read(expected);
             remap(node.pool, (type) => {
                 console.log(`remapping ${JSON.stringify(type)}`);
+                parseType(type.value); // round-trip type parsing
                 return type;
             });
         });
