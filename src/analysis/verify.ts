@@ -202,7 +202,8 @@ const filter = (attrib: Attributable, ...names: string[]): boolean => {
     return dirty;
 };
 
-export const verify = (node: Node): Node => {
+// modified in-place
+export const verify = (node: Node) => {
     check(node, node.pool, AttributeContext.CLASS);
     for (const field of node.fields) {
         check(field, node.pool, AttributeContext.FIELD);
@@ -252,6 +253,4 @@ export const verify = (node: Node): Node => {
         // no module modifier, remove
         filter(node, AttributeType.MODULE, AttributeType.MODULE_PACKAGES, AttributeType.MODULE_MAIN_CLASS);
     }
-
-    return node; // in-place
 };

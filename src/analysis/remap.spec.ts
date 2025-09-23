@@ -1,16 +1,17 @@
 import { opendirSync, readFileSync, type Dirent } from "node:fs";
 import { join } from "node:path";
-import { read, write } from "../";
-import { verify } from "./verify";
+import { read } from "../";
+import { remap } from "./remap";
 
-describe("verification", () => {
+describe("remapping", () => {
     const register = (path: string) => {
         const expected = new Uint8Array(readFileSync(path));
-        it(`round-trip ${path}`, () => {
+        it(`remap ${path}`, () => {
             const node = read(expected);
-            verify(node);
-
-            write(node);
+            remap(node.pool, (type) => {
+                console.log(`remapping ${JSON.stringify(type)}`);
+                return type;
+            });
         });
     };
 
