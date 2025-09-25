@@ -15,8 +15,7 @@ export enum TypeKind {
 export interface Type {
     kind: TypeKind;
     name: string;
-
-    get value(): string;
+    value: string;
 }
 
 export const PrimitiveType: {
@@ -137,10 +136,16 @@ export interface ParameterizedType extends Type {
     typeArguments: Type[];
 }
 
+export enum WildcardBoundType {
+    UNBOUNDED,
+    EXTENDS,
+    SUPER,
+}
+
 export interface WildcardType extends Type {
     kind: TypeKind.WILDCARD;
     bound?: Type;
-    boundType: "extends" | "super" | "unbounded";
+    boundType: WildcardBoundType;
 }
 
 export interface MethodType extends Type {
@@ -157,6 +162,8 @@ export interface ClassType extends Type {
     interfaces: Type[];
 }
 
+// type builders
+
 const primTypes = new Map<string, Type>([
     ["B", PrimitiveType.BYTE],
     ["C", PrimitiveType.CHAR],
@@ -169,19 +176,130 @@ const primTypes = new Map<string, Type>([
     ["V", PrimitiveType.VOID],
 ]);
 
-const wildcardProto: Partial<WildcardType> = {
-    kind: TypeKind.WILDCARD,
-    get value() {
-        return this.bound
-            ? this.boundType === "unbounded"
-                ? "*"
-                : `${this.boundType === "extends" ? "+" : "-"}${this.bound.value}`
-            : "*";
-    },
-    get name() {
-        return this.bound ? (this.boundType === "unbounded" ? "?" : `? ${this.boundType} ${this.bound.name}`) : "?";
-    },
+export const objectType = (desc: string): Type => {
+    const primitive = primTypes.get(desc);
+    if (primitive) {
+        return primitive;
+    }
+
+    return {
+        kind: TypeKind.OBJECT,
+        value: desc,
+        get name() {
+            return this.value.slice(1, -1).replaceAll("/", ".");
+        },
+    };
 };
+
+export const arrayType = (elementType: Type, dimensions: number): ArrayType => {
+    return {
+        kind: TypeKind.ARRAY,
+        dimensions,
+        elementType,
+        get value() {
+            return "[".repeat(this.dimensions) + this.elementType.value;
+        },
+        get name() {
+            return this.elementType.name + "[]".repeat(this.dimensions);
+        },
+    };
+};
+
+export const methodType = (parameters: Type[], returnType: Type, typeParameters?: TypeParameter[]): MethodType => {
+    return {
+        kind: TypeKind.METHOD,
+        parameters,
+        returnType,
+        typeParameters,
+        get value() {
+            return `${this.typeParameters ? `<${this.typeParameters.map((t) => t.value).join("")}>` : ""}(${this.parameters.map((t) => t.value).join("")})${this.returnType.value}`;
+        },
+        get name() {
+            return `${this.typeParameters ? `<${this.typeParameters.map((t) => t.name).join(", ")}>` : ""}(${this.parameters.map((t) => t.name).join(", ")}): ${this.returnType.name}`;
+        },
+    };
+};
+
+export const classType = (superClass: Type, interfaces: Type[], typeParameters: TypeParameter[]): ClassType => {
+    return {
+        kind: TypeKind.CLASS,
+        typeParameters,
+        superClass,
+        interfaces,
+        get value() {
+            return `<${this.typeParameters.map((t) => t.value).join("")}>${this.superClass.value}${this.interfaces.length > 0 ? this.interfaces.map((i) => i.value).join("") : ""}`;
+        },
+        get name() {
+            return `<${this.typeParameters.map((t) => t.name).join(", ")}> extends ${this.superClass.name}${this.interfaces.length > 0 ? ` implements ${this.interfaces.map((i) => i.name).join(", ")}` : ""}`;
+        },
+    };
+};
+
+export const typeParameter = (identifier: string, classBound?: Type, interfaceBounds?: Type[]): TypeParameter => {
+    return {
+        kind: TypeKind.TYPE_PARAMETER,
+        identifier,
+        classBound,
+        interfaceBounds,
+        get name() {
+            return `${this.identifier} ${this.classBound ? `super ${this.classBound.value}` : `extends ${this.interfaceBounds.map((i) => i.name).join(" & ")}`}`;
+        },
+        get value() {
+            return `${this.identifier}:${this.classBound?.value || ""}${this.interfaceBounds?.map((b) => `:${b.value}`)?.join("") || ""}`;
+        },
+    };
+};
+
+export const wildcard = (boundType: WildcardBoundType, bound?: Type): WildcardType => {
+    if (boundType !== WildcardBoundType.UNBOUNDED && !bound) {
+        throw new Error("No bound provided for wildcard with bound");
+    }
+
+    return {
+        kind: TypeKind.WILDCARD,
+        boundType,
+        bound,
+        get value() {
+            return this.bound
+                ? this.boundType === "unbounded"
+                    ? "*"
+                    : `${this.boundType === "extends" ? "+" : "-"}${this.bound.value}`
+                : "*";
+        },
+        get name() {
+            return this.bound ? (this.boundType === "unbounded" ? "?" : `? ${this.boundType} ${this.bound.name}`) : "?";
+        },
+    };
+};
+
+export const typeVariable = (identifier: string): TypeVariable => {
+    return {
+        kind: TypeKind.TYPE_VARIABLE,
+        identifier,
+        get value() {
+            return `T${this.identifier};`;
+        },
+        get name() {
+            return this.identifier;
+        },
+    };
+};
+
+export const parameterized = (rawType: Type, typeArguments: Type[]): ParameterizedType => {
+    return {
+        kind: TypeKind.PARAMETERIZED,
+        rawType,
+        typeArguments,
+        get value() {
+            return `${this.rawType.value.slice(0, -1)}<${this.typeArguments.map((t) => t.value).join("")}>;`;
+        },
+        get name() {
+            return `${this.rawType.name}<${this.typeArguments.map((t) => t.name).join(", ")}>`;
+        },
+    };
+};
+
+// type parsing
 
 const parseTypeArguments = (signature: string, offset: number): { typeArgs: Type[]; endOffset: number } => {
     const typeArgs: Type[] = [];
@@ -189,30 +307,19 @@ const parseTypeArguments = (signature: string, offset: number): { typeArgs: Type
         const char = signature.charAt(offset);
         switch (char) {
             case "*": {
-                typeArgs.push({
-                    ...wildcardProto,
-                    boundType: "unbounded",
-                } as WildcardType);
+                typeArgs.push(wildcard(WildcardBoundType.UNBOUNDED));
                 offset++;
                 break;
             }
             case "+": {
                 const { type: boundType, endOffset: newOffset } = parseTypeFromSignature(signature, offset + 1);
-                typeArgs.push({
-                    ...wildcardProto,
-                    bound: boundType,
-                    boundType: "extends",
-                } as WildcardType);
+                typeArgs.push(wildcard(WildcardBoundType.EXTENDS, boundType));
                 offset = newOffset;
                 break;
             }
             case "-": {
                 const { type: boundType, endOffset: newOffset } = parseTypeFromSignature(signature, offset + 1);
-                typeArgs.push({
-                    ...wildcardProto,
-                    bound: boundType,
-                    boundType: "super",
-                } as WildcardType);
+                typeArgs.push(wildcard(WildcardBoundType.SUPER, boundType));
                 offset = newOffset;
                 break;
             }
@@ -249,16 +356,7 @@ const parseTypeFromSignature = (signature: string, offset: number): { type: Type
             }
 
             return {
-                type: {
-                    kind: TypeKind.TYPE_VARIABLE,
-                    identifier: signature.substring(offset + 1, endOffset),
-                    get value() {
-                        return `T${this.identifier};`;
-                    },
-                    get name() {
-                        return this.identifier;
-                    },
-                } as TypeVariable,
+                type: typeVariable(signature.substring(offset + 1, endOffset)),
                 endOffset: endOffset + 1,
             };
         }
@@ -282,17 +380,7 @@ const parseArrayType = (signature: string, offset: number): { type: Type; endOff
 
     const { type: elementType, endOffset } = parseTypeFromSignature(signature, offset);
     return {
-        type: {
-            kind: TypeKind.ARRAY,
-            dimensions,
-            elementType,
-            get value() {
-                return "[".repeat(this.dimensions) + this.elementType.value;
-            },
-            get name() {
-                return this.elementType.name + "[]".repeat(this.dimensions);
-            },
-        } as ArrayType,
+        type: arrayType(elementType, dimensions),
         endOffset,
     };
 };
@@ -317,15 +405,7 @@ const parseClassType = (signature: string, offset: number): { type: Type; endOff
         throw new Error(`Invalid class type descriptor ${signature.substring(offset)}, missing trailing semicolon`);
     }
 
-    const className = signature.substring(start, nameEnd).replaceAll("/", ".");
-    const rawType: Type = {
-        kind: TypeKind.OBJECT,
-        name: className,
-        get value() {
-            return `L${this.name.replaceAll(".", "/")};`;
-        },
-    };
-
+    const rawType = objectType(`L${signature.substring(start, nameEnd)};`);
     if (hasGenerics) {
         const { typeArgs, endOffset: typeArgsEnd } = parseTypeArguments(signature, nameEnd + 1);
 
@@ -341,17 +421,7 @@ const parseClassType = (signature: string, offset: number): { type: Type; endOff
         }
 
         return {
-            type: {
-                kind: TypeKind.PARAMETERIZED,
-                rawType,
-                typeArguments: typeArgs,
-                get value() {
-                    return `${this.rawType.value.substring(0, this.rawType.value.length - 1)}<${this.typeArguments.map((t) => t.value).join("")}>;`;
-                },
-                get name() {
-                    return `${this.rawType.name}<${this.typeArguments.map((t) => t.name).join(", ")}>`;
-                },
-            } as ParameterizedType,
+            type: parameterized(rawType, typeArgs),
             endOffset: actualEnd + 1,
         };
     } else {
@@ -432,18 +502,7 @@ export const parseType = (desc: string): Type => {
                     offset = endOffset;
                 }
 
-                typeParams.push({
-                    kind: TypeKind.TYPE_PARAMETER,
-                    identifier,
-                    classBound,
-                    interfaceBounds,
-                    get name() {
-                        return `${this.identifier} ${this.classBound ? `super ${this.classBound.value}` : `extends ${this.interfaceBounds.map((i) => i.name).join(" & ")}`}`;
-                    },
-                    get value() {
-                        return `${this.identifier}:${this.classBound?.value || ""}${this.interfaceBounds?.map((b) => `:${b.value}`)?.join("") || ""}`;
-                    },
-                } as TypeParameter);
+                typeParams.push(typeParameter(identifier, classBound, interfaceBounds));
             }
 
             const restSignature = desc.substring(closeAngle + 1);
@@ -458,18 +517,7 @@ export const parseType = (desc: string): Type => {
                 const paramTypes = parseMethodParameters(params);
                 const returnType = parseType(restSignature.substring(lastParen + 1));
 
-                return {
-                    kind: TypeKind.METHOD,
-                    parameters: paramTypes,
-                    returnType,
-                    typeParameters: typeParams,
-                    get value() {
-                        return `<${this.typeParameters.map((t) => t.value).join("")}>(${this.parameters.map((t) => t.value).join("")})${this.returnType.value}`;
-                    },
-                    get name() {
-                        return `<${this.typeParameters.map((t) => t.name).join(", ")}>(${this.parameters.map((t) => t.name).join(", ")}): ${this.returnType.name}`;
-                    },
-                } as MethodType;
+                return methodType(paramTypes, returnType, typeParams);
             } else {
                 let currentOffset = 0;
                 const { type: superclass, endOffset } = parseTypeFromSignature(restSignature, currentOffset);
@@ -482,18 +530,7 @@ export const parseType = (desc: string): Type => {
                     interfaceOffset = newOffset;
                 }
 
-                return {
-                    kind: TypeKind.CLASS,
-                    typeParameters: typeParams,
-                    superClass: superclass,
-                    interfaces,
-                    get value() {
-                        return `<${this.typeParameters.map((t) => t.value).join("")}>${this.superClass.value}${this.interfaces.length > 0 ? this.interfaces.map((i) => i.value).join("") : ""}`;
-                    },
-                    get name() {
-                        return `<${this.typeParameters.map((t) => t.name).join(", ")}> extends ${this.superClass.name}${this.interfaces.length > 0 ? ` implements ${this.interfaces.map((i) => i.name).join(", ")}` : ""}`;
-                    },
-                } as ClassType;
+                return classType(superclass, interfaces, typeParams);
             }
         }
         case "(": {
@@ -506,17 +543,7 @@ export const parseType = (desc: string): Type => {
             const paramTypes = parseMethodParameters(params);
             const returnType = parseType(desc.substring(lastParen + 1));
 
-            return {
-                kind: TypeKind.METHOD,
-                parameters: paramTypes,
-                returnType,
-                get value() {
-                    return `(${this.parameters.map((t) => t.value).join("")})${this.returnType.value}`;
-                },
-                get name() {
-                    return `(${this.parameters.map((t) => t.name).join(", ")}): ${this.returnType.name}`;
-                },
-            } as MethodType;
+            return methodType(paramTypes, returnType);
         }
     }
 
