@@ -50,24 +50,6 @@ class Parser:
 
         return rows
 
-    def _parse_versions(self, soup: BeautifulSoup) -> list:
-        results = []
-
-        # Table 4.1-A. class file format major versions
-        for row in self._parse_table(soup, "jvms-4.1-200-B.2"):
-            supported_majors = [int(m) for m in row[3].split(" .. ", maxsplit=1)]
-            if len(supported_majors) == 2:
-                supported_majors = list(range(supported_majors[0], supported_majors[1] + 1))
-
-            results.append({
-                "name": row[0],
-                "release_date": row[1],
-                "major": int(row[2]),
-                "supported_majors": supported_majors
-            })
-
-        return results
-
     def _parse_pool_tags(self, soup: BeautifulSoup) -> list:
         results = []
 
@@ -212,7 +194,6 @@ class Parser:
         insn_soup = html_parser(get(f"{url}/jvms-6.html"))
 
         return {
-            "versions": self._parse_versions(cf_soup),
             "pool_tags": self._parse_pool_tags(cf_soup),
             "pool_handle_kinds": self._parse_pool_handle_kinds(pool_soup),
             "attributes": self._parse_attributes(cf_soup),
@@ -229,7 +210,7 @@ class Parser:
 if __name__ == "__main__":
     arg_parser = ArgumentParser(description="Parses the JVM instruction set and ClassFile format specification.")
     arg_parser.add_argument("--url", "-u", help="the JVM specification URL",
-                            default="https://docs.oracle.com/javase/specs/jvms/se22/html")
+                            default="https://docs.oracle.com/javase/specs/jvms/se25/html")
     arg_parser.add_argument("--output", "-o", help="the file where the output is stored",
                             default="./generator/spec.json")
 

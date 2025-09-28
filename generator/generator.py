@@ -17,7 +17,6 @@ class Generator:
     MEMBERS = {
         "./opcode": ["Opcode"],
         "./modifier": ["Modifier"],
-        "./version": ["Version"],
         "./attr_type": ["AttributeType"],
         "./const_type": ["ConstantType"],
         "./handle_kind": ["HandleKind"],
@@ -85,22 +84,6 @@ class Generator:
 
                 f.write("\t */\n")
                 f.write(f"\t{flag['name'].removeprefix('ACC_')} = {hex(flag['value'])},\n")
-
-            f.write("}\n")
-
-    def _generate_versions(self, p_input: dict):
-        with open(self._source_path("version.ts"), "w", encoding="utf-8") as f:
-            self._write_header(f)
-
-            f.write("/** ClassFile versions. */\n")
-            f.write("export enum Version {")
-            for version in p_input["versions"]:
-                f.write("\n\t/**\n")
-                f.write(f"\t * Java {version['name']}, released in {version['release_date']}.\n")
-                f.write("\t *\n")
-                f.write(f"\t * Supported major versions: {', '.join([str(v) for v in version['supported_majors']])}\n")
-                f.write("\t */\n")
-                f.write(f"\tV_{version['name'].replace('.', '_')} = {version['major']},\n")
 
             f.write("}\n")
 
@@ -177,7 +160,6 @@ class Generator:
     def generate(self, p_input: dict):
         self._generate_opcodes(p_input)
         self._generate_access_flags(p_input)
-        self._generate_versions(p_input)
         self._generate_attributes(p_input)
         self._generate_pool_tags(p_input)
         self._generate_pool_handle_kinds(p_input)

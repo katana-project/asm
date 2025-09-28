@@ -1,4 +1,4 @@
-// This file was generated on 2024-08-03 12:11:11.669202. Do not edit, changes will be overwritten!
+// This file was generated on 2025-09-28 19:07:18.231258. Do not edit, changes will be overwritten!
 
 /** Constant pool method handle kinds. */
 export enum HandleKind {

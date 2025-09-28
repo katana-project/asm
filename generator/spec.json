@@ -1,421 +1,4 @@
 {
-  "versions": [
-    {
-      "name": "1.0.2",
-      "release_date": "May 1996",
-      "major": 45,
-      "supported_majors": [
-        45
-      ]
-    },
-    {
-      "name": "1.1",
-      "release_date": "February 1997",
-      "major": 45,
-      "supported_majors": [
-        45
-      ]
-    },
-    {
-      "name": "1.2",
-      "release_date": "December 1998",
-      "major": 46,
-      "supported_majors": [
-        45,
-        46
-      ]
-    },
-    {
-      "name": "1.3",
-      "release_date": "May 2000",
-      "major": 47,
-      "supported_majors": [
-        45,
-        46,
-        47
-      ]
-    },
-    {
-      "name": "1.4",
-      "release_date": "February 2002",
-      "major": 48,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48
-      ]
-    },
-    {
-      "name": "5.0",
-      "release_date": "September 2004",
-      "major": 49,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49
-      ]
-    },
-    {
-      "name": "6",
-      "release_date": "December 2006",
-      "major": 50,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50
-      ]
-    },
-    {
-      "name": "7",
-      "release_date": "July 2011",
-      "major": 51,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51
-      ]
-    },
-    {
-      "name": "8",
-      "release_date": "March 2014",
-      "major": 52,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52
-      ]
-    },
-    {
-      "name": "9",
-      "release_date": "September 2017",
-      "major": 53,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53
-      ]
-    },
-    {
-      "name": "10",
-      "release_date": "March 2018",
-      "major": 54,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54
-      ]
-    },
-    {
-      "name": "11",
-      "release_date": "September 2018",
-      "major": 55,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55
-      ]
-    },
-    {
-      "name": "12",
-      "release_date": "March 2019",
-      "major": 56,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56
-      ]
-    },
-    {
-      "name": "13",
-      "release_date": "September 2019",
-      "major": 57,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57
-      ]
-    },
-    {
-      "name": "14",
-      "release_date": "March 2020",
-      "major": 58,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58
-      ]
-    },
-    {
-      "name": "15",
-      "release_date": "September 2020",
-      "major": 59,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59
-      ]
-    },
-    {
-      "name": "16",
-      "release_date": "March 2021",
-      "major": 60,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60
-      ]
-    },
-    {
-      "name": "17",
-      "release_date": "September 2021",
-      "major": 61,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61
-      ]
-    },
-    {
-      "name": "18",
-      "release_date": "March 2022",
-      "major": 62,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62
-      ]
-    },
-    {
-      "name": "19",
-      "release_date": "September 2022",
-      "major": 63,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63
-      ]
-    },
-    {
-      "name": "20",
-      "release_date": "March 2023",
-      "major": 64,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64
-      ]
-    },
-    {
-      "name": "21",
-      "release_date": "September 2023",
-      "major": 65,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65
-      ]
-    },
-    {
-      "name": "22",
-      "release_date": "March 2024",
-      "major": 66,
-      "supported_majors": [
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66
-      ]
-    }
-  ],
   "pool_tags": [
     {
       "name": "CONSTANT_Utf8",
@@ -1099,7 +682,7 @@
         }
       ],
       "stack": "..., arrayref, index, value \u2192 ...",
-      "description": "The arrayref must be of type reference and must refer to an array\nwhose components are of type reference. The index must be of type\nint, and value must be of type reference. The arrayref, index,\nand value are popped from the operand stack.\nIf value is null, then value is stored as the component of\nthe array at index.\nOtherwise, value is non-null. If the type of value is\nassignment compatible with the type of the components of the array\nreferenced by arrayref, then value is stored as the component\nof the array at index.\nThe following rules are used to determine whether a value that\nis not null is assignment compatible with the array component\ntype. If S is the type of the object referred to by value, and\nT is the reference type of the array components, then aastore\ndetermines whether assignment is compatible as follows:\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules.\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules.\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules.\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules.\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules.\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules.\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC is\nassignable to TC by these run-time rules."
+      "description": "The arrayref must be of type reference and must refer to an array\nwhose components are of type reference. The index must be of type\nint, and value must be of type reference. The arrayref, index,\nand value are popped from the operand stack.\nIf value is null, then value is stored as the component of\nthe array at index.\nOtherwise, value is non-null. If value is a value of the component\ntype of the array referenced by arrayref, then value is stored as\nthe component of the array at index.\nWhether value is a value of the array component type is determined\naccording to the rules given for\n\u00a7checkcast."
     },
     {
       "name": "aconst_null",
@@ -1360,7 +943,7 @@
         }
       ],
       "stack": "..., objectref \u2192 ..., objectref",
-      "description": "The objectref must be of type reference. The unsigned indexbyte1\nand indexbyte2 are used to construct an index into the run-time\nconstant pool of the current class (\u00a72.6),\nwhere the value of the index is (indexbyte1 << 8) |\nindexbyte2. The run-time constant pool entry at the index must be\na symbolic reference to a class, array, or interface type.\nIf objectref is null, then the operand stack is unchanged.\nOtherwise, the named class, array, or interface type is resolved\n(\u00a75.4.3.1). If objectref can be cast to\nthe resolved class, array, or interface type, the operand stack is\nunchanged; otherwise, the checkcast instruction throws a\nClassCastException.\nThe following rules are used to determine whether an objectref\nthat is not null can be cast to the resolved type. If S is the\ntype of the object referred to by objectref, and T is the\nresolved class, array, or interface type, then checkcast\ndetermines whether objectref can be cast to type T as follows:\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules.\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules.\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules.\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules.\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules.\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules.\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by recursive application of these\nrules."
+      "description": "The objectref must be of type reference. The unsigned indexbyte1\nand indexbyte2 are used to construct an index into the run-time\nconstant pool of the current class (\u00a72.6),\nwhere the value of the index is (indexbyte1 << 8) |\nindexbyte2. The run-time constant pool entry at the index must be\na symbolic reference to a class, array, or interface type.\nIf objectref is null, then the operand stack is unchanged.\nOtherwise, the named class, array, or interface type is resolved\n(\u00a75.4.3.1). If objectref is a value of the type\ngiven by the resolved class, array, or interface type, the operand stack is\nunchanged.\nThe following rules are used to determine whether a non-null reference to\nan object is a value of a reference type, T.\nIf the reference is to an instance of a class C, then:\nIf T is the type of a class D, then the reference is\na value of T if C is D or a subclass of D;\nIf T is the type of an interface I, then the reference is\na value of T if C implements I.\nIf the reference is to an array with component type SC, then:\nIf T is a class type, then the reference is a value of T\nif T is Object;\nIf T is an interface type, then the reference is a value of T\nif T is Cloneable or java.io.Serializable, as defined by the\nbootstrap class loader (\u00a75.3);\nIf T is an array type TC[], that is, an array\nof components of type TC, then the reference is a value of T\nif one of the following is true:\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC.\nIf the reference is to an instance of a class C, then:\nIf T is the type of a class D, then the reference is\na value of T if C is D or a subclass of D;\nIf T is the type of an interface I, then the reference is\na value of T if C implements I.\nIf the reference is to an array with component type SC, then:\nIf T is a class type, then the reference is a value of T\nif T is Object;\nIf T is an interface type, then the reference is a value of T\nif T is Cloneable or java.io.Serializable, as defined by the\nbootstrap class loader (\u00a75.3);\nIf T is an array type TC[], that is, an array\nof components of type TC, then the reference is a value of T\nif one of the following is true:\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC.\nIf the reference is to an instance of a class C, then:\nIf T is the type of a class D, then the reference is\na value of T if C is D or a subclass of D;\nIf T is the type of an interface I, then the reference is\na value of T if C implements I.\nIf T is the type of a class D, then the reference is\na value of T if C is D or a subclass of D;\nIf T is the type of an interface I, then the reference is\na value of T if C implements I.\nIf T is the type of a class D, then the reference is\na value of T if C is D or a subclass of D;\nIf T is the type of an interface I, then the reference is\na value of T if C implements I.\nIf the reference is to an array with component type SC, then:\nIf T is a class type, then the reference is a value of T\nif T is Object;\nIf T is an interface type, then the reference is a value of T\nif T is Cloneable or java.io.Serializable, as defined by the\nbootstrap class loader (\u00a75.3);\nIf T is an array type TC[], that is, an array\nof components of type TC, then the reference is a value of T\nif one of the following is true:\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC.\nIf T is a class type, then the reference is a value of T\nif T is Object;\nIf T is an interface type, then the reference is a value of T\nif T is Cloneable or java.io.Serializable, as defined by the\nbootstrap class loader (\u00a75.3);\nIf T is an array type TC[], that is, an array\nof components of type TC, then the reference is a value of T\nif one of the following is true:\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC.\nIf T is a class type, then the reference is a value of T\nif T is Object;\nIf T is an interface type, then the reference is a value of T\nif T is Cloneable or java.io.Serializable, as defined by the\nbootstrap class loader (\u00a75.3);\nIf T is an array type TC[], that is, an array\nof components of type TC, then the reference is a value of T\nif one of the following is true:\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC.\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC.\nTC and SC are the same type;\nTC is the class type Object;\nTC is a class or interface type,\nSC is a class or interface type, and\nthe class or interface named by SC extends or implements\nthe class or interface named by TC;\nSC is an array type SCC[], and\n(applying these rules recursively) a reference to an array\nwith component type SCC is a value of type TC."
     },
     {
       "name": "d2f",
@@ -1420,7 +1003,7 @@
         }
       ],
       "stack": "..., value1, value2 \u2192 ..., result",
-      "description": "Both value1 and value2 must be of type double. The values\nare popped from the operand stack. The double result is value1 + value2. The\nresult is pushed onto the operand stack.\nThe result of a dadd instruction is governed by the rules of\nIEEE 754 arithmetic:\nIf either value1 or value2 is NaN, the result is NaN.\nThe sum of two infinities of opposite sign is NaN.\nThe sum of two infinities of the same sign is the infinity of that sign.\nThe sum of an infinity and any finite value is equal to the infinity.\nThe sum of two zeroes of opposite sign is positive zero.\nThe sum of two zeroes of the same sign is the zero of that sign.\nThe sum of a zero and a nonzero finite value is equal to the nonzero value.\nThe sum of two nonzero finite values of the same magnitude and opposite sign is positive zero.\nIn the remaining cases, where neither operand is an infinity,\na zero, or NaN and the values have the same sign or have\ndifferent magnitudes, the sum is computed and rounded to the\nnearest representable value using the round to nearest rounding policy\n(\u00a72.8). If the magnitude is too large to\nrepresent as a double, we say the operation overflows; the result\nis then\tan infinity of appropriate sign. If the magnitude is too small\nto represent as a double, we say the operation underflows;\nthe result is then a zero of appropriate sign.\nIf either value1 or value2 is NaN, the result is NaN.\nThe sum of two infinities of opposite sign is NaN.\nThe sum of two infinities of the same sign is the infinity of that sign.\nThe sum of an infinity and any finite value is equal to the infinity.\nThe sum of two zeroes of opposite sign is positive zero.\nThe sum of two zeroes of the same sign is the zero of that sign.\nThe sum of a zero and a nonzero finite value is equal to the nonzero value.\nThe sum of two nonzero finite values of the same magnitude and opposite sign is positive zero.\nIn the remaining cases, where neither operand is an infinity,\na zero, or NaN and the values have the same sign or have\ndifferent magnitudes, the sum is computed and rounded to the\nnearest representable value using the round to nearest rounding policy\n(\u00a72.8). If the magnitude is too large to\nrepresent as a double, we say the operation overflows; the result\nis then\tan infinity of appropriate sign. If the magnitude is too small\nto represent as a double, we say the operation underflows;\nthe result is then a zero of appropriate sign.\nIf either value1 or value2 is NaN, the result is NaN.\nThe sum of two infinities of opposite sign is NaN.\nThe sum of two infinities of the same sign is the infinity of that sign.\nThe sum of an infinity and any finite value is equal to the infinity.\nThe sum of two zeroes of opposite sign is positive zero.\nThe sum of two zeroes of the same sign is the zero of that sign.\nThe sum of a zero and a nonzero finite value is equal to the nonzero value.\nThe sum of two nonzero finite values of the same magnitude and opposite sign is positive zero.\nIn the remaining cases, where neither operand is an infinity,\na zero, or NaN and the values have the same sign or have\ndifferent magnitudes, the sum is computed and rounded to the\nnearest representable value using the round to nearest rounding policy\n(\u00a72.8). If the magnitude is too large to\nrepresent as a double, we say the operation overflows; the result\nis then\tan infinity of appropriate sign. If the magnitude is too small\nto represent as a double, we say the operation underflows;\nthe result is then a zero of appropriate sign.\nThe Java Virtual Machine requires support of gradual underflow.\nDespite the fact that overflow, underflow, or loss of\nprecision may occur, execution of a dadd instruction never\nthrows a run-time exception."
+      "description": "Both value1 and value2 must be of type double. The values\nare popped from the operand stack. The double result is value1 + value2. The\nresult is pushed onto the operand stack.\nThe result of a dadd instruction is governed by the rules of\nIEEE 754 arithmetic:\nIf either value1 or value2 is NaN, the result is NaN.\nThe sum of two infinities of opposite sign is NaN.\nThe sum of two infinities of the same sign is the infinity of that sign.\nThe sum of an infinity and any finite value is equal to the infinity.\nThe sum of two zeroes of opposite sign is positive zero.\nThe sum of two zeroes of the same sign is the zero of that sign.\nThe sum of a zero and a nonzero finite value is equal to the nonzero value.\nThe sum of two nonzero finite values of the same magnitude and opposite sign is positive zero.\nIn the remaining cases, where neither operand is an infinity,\na zero, or NaN and the values have the same sign or have\ndifferent magnitudes, the sum is computed and rounded to the\nnearest representable value using the round to nearest rounding policy\n(\u00a72.8). If the magnitude is too large to\nrepresent as a double, we say the operation overflows; the result\nis then an infinity of appropriate sign. If the magnitude is too small\nto represent as a double, we say the operation underflows;\nthe result is then a zero of appropriate sign.\nIf either value1 or value2 is NaN, the result is NaN.\nThe sum of two infinities of opposite sign is NaN.\nThe sum of two infinities of the same sign is the infinity of that sign.\nThe sum of an infinity and any finite value is equal to the infinity.\nThe sum of two zeroes of opposite sign is positive zero.\nThe sum of two zeroes of the same sign is the zero of that sign.\nThe sum of a zero and a nonzero finite value is equal to the nonzero value.\nThe sum of two nonzero finite values of the same magnitude and opposite sign is positive zero.\nIn the remaining cases, where neither operand is an infinity,\na zero, or NaN and the values have the same sign or have\ndifferent magnitudes, the sum is computed and rounded to the\nnearest representable value using the round to nearest rounding policy\n(\u00a72.8). If the magnitude is too large to\nrepresent as a double, we say the operation overflows; the result\nis then an infinity of appropriate sign. If the magnitude is too small\nto represent as a double, we say the operation underflows;\nthe result is then a zero of appropriate sign.\nIf either value1 or value2 is NaN, the result is NaN.\nThe sum of two infinities of opposite sign is NaN.\nThe sum of two infinities of the same sign is the infinity of that sign.\nThe sum of an infinity and any finite value is equal to the infinity.\nThe sum of two zeroes of opposite sign is positive zero.\nThe sum of two zeroes of the same sign is the zero of that sign.\nThe sum of a zero and a nonzero finite value is equal to the nonzero value.\nThe sum of two nonzero finite values of the same magnitude and opposite sign is positive zero.\nIn the remaining cases, where neither operand is an infinity,\na zero, or NaN and the values have the same sign or have\ndifferent magnitudes, the sum is computed and rounded to the\nnearest representable value using the round to nearest rounding policy\n(\u00a72.8). If the magnitude is too large to\nrepresent as a double, we say the operation overflows; the result\nis then an infinity of appropriate sign. If the magnitude is too small\nto represent as a double, we say the operation underflows;\nthe result is then a zero of appropriate sign.\nThe Java Virtual Machine requires support of gradual underflow.\nDespite the fact that overflow, underflow, or loss of\nprecision may occur, execution of a dadd instruction never\nthrows a run-time exception."
     },
     {
       "name": "daload",
@@ -2084,7 +1667,7 @@
         }
       ],
       "stack": "..., objectref \u2192 ..., value",
-      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to a field\n(\u00a75.1), which gives the name and descriptor\nof the field as well as a symbolic reference to the class in which\nthe field is to be found. The referenced field is resolved\n(\u00a75.4.3.2).\nThe objectref, which must be\nof type reference but not an array type, is popped from the operand\nstack. The value of the referenced field in objectref is fetched\nand pushed onto the operand stack."
+      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to a field\n(\u00a75.1), which gives the name and descriptor\nof the field as well as a symbolic reference to the class in which\nthe field is to be found. The referenced field is resolved\n(\u00a75.4.3.2).\nThe objectref, which must be of type reference but not an array type, is\npopped from the operand stack. The value of the referenced field in\nobjectref is fetched and pushed onto the operand stack."
     },
     {
       "name": "getstatic",
@@ -2264,7 +1847,7 @@
     },
     {
       "name": "iand",
-      "operation": "Boolean AND int",
+      "operation": "Bitwise AND int",
       "formats": [
         []
       ],
@@ -2588,7 +2171,7 @@
         }
       ],
       "stack": "..., objectref \u2192 ..., result",
-      "description": "The objectref, which must be of type reference, is popped from the\noperand stack. The unsigned indexbyte1 and indexbyte2 are used\nto construct an index into the run-time constant pool of the\ncurrent class (\u00a72.6), where the value of the\nindex is (indexbyte1 << 8) | indexbyte2. The run-time\nconstant pool entry at the index must be a symbolic reference to a\nclass, array, or interface type.\nIf objectref is null, the instanceof instruction pushes an\nint result of 0 as an int onto the operand stack.\nOtherwise, the named class, array, or interface type is resolved\n(\u00a75.4.3.1). If objectref is an instance of\nthe resolved class or array type, or implements the resolved\ninterface, the instanceof instruction pushes an int result\nof 1 as an int onto the operand stack; otherwise, it pushes an\nint result of 0.\nThe following rules are used to determine whether an objectref\nthat is not null is an instance of the resolved type. If S is\nthe type of the object referred to by objectref, and T is the\nresolved class, array, or interface type, then instanceof\ndetermines whether objectref is an instance of T as follows:\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules.\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules.\nIf S is a class type, then:\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf T is a class type, then S must be the same class as\nT, or S must be a subclass of T;\nIf T is an interface type, then S must implement\ninterface T.\nIf S is an array type SC[], that is, an array of\ncomponents of type SC, then:\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules.\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules.\nIf T is a class type, then T must be Object.\nIf T is an interface type, then T must be one of the\ninterfaces implemented by arrays (JLS \u00a74.10.3).\nIf T is an array type TC[], that is, an array\nof components of type TC, then one of the following must\nbe true:\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules.\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules.\nTC and SC are the same primitive type.\nTC and SC are reference types, and type SC can\nbe cast to TC by these run-time rules."
+      "description": "The objectref, which must be of type reference, is popped from the\noperand stack. The unsigned indexbyte1 and indexbyte2 are used\nto construct an index into the run-time constant pool of the\ncurrent class (\u00a72.6), where the value of the\nindex is (indexbyte1 << 8) | indexbyte2. The run-time\nconstant pool entry at the index must be a symbolic reference to a\nclass, array, or interface type.\nIf objectref is null, the instanceof instruction pushes an\nint result of 0 onto the operand stack.\nOtherwise, the named class, array, or interface type is resolved\n(\u00a75.4.3.1). If objectref is a value of the type\ngiven by the resolved class, array, or interface type, the instanceof\ninstruction pushes an int result of 1 onto the operand stack;\notherwise, it pushes an int result of 0.\nWhether objectref is a value of the type given by the resolved class,\narray, or interface type is determined according to the rules given for\n\u00a7checkcast."
     },
     {
       "name": "invokedynamic",
@@ -2628,7 +2211,7 @@
         }
       ],
       "stack": "..., objectref, [arg1, [arg2 ...]] \u2192 ...",
-      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to an\ninterface method (\u00a75.1), which gives the\nname and descriptor (\u00a74.3.3) of the\ninterface method as well as a symbolic reference to the interface\nin which the interface method is to be found. The named interface\nmethod is resolved (\u00a75.4.3.4).\nThe resolved interface method must not be an instance\ninitialization method, or the class or interface initialization\nmethod (\u00a72.9.1,\n\u00a72.9.2).\nThe count operand is an unsigned byte that must not be zero. The\nobjectref must be of type reference and must be followed on the\noperand stack by nargs argument values, where the number, type,\nand order of the values must be consistent with the descriptor of\nthe resolved interface method. The value of the fourth operand\nbyte must always be zero.\nLet C be the class of objectref. A method is selected with\nrespect to C and the resolved method (\u00a75.4.6).\nThis is the method to be invoked.\nIf the method to be invoked is synchronized, the monitor\nassociated with objectref is entered or reentered as if by\nexecution of a monitorenter instruction\n(\u00a7monitorenter) in the current\nthread.\nIf the method to be invoked is not native, the nargs argument values and\nobjectref are popped from the operand stack. A new frame is\ncreated on the Java Virtual Machine stack for the method being invoked. The\nobjectref and the argument values are consecutively made the\nvalues of local variables of the new frame, with objectref in\nlocal variable 0, arg1 in local variable 1 (or, if arg1 is of\ntype long or double, in local variables 1 and 2), and so\non. The new frame is then made current,\nand the Java Virtual Machine pc is set to the opcode of the first instruction\nof the method to be invoked. Execution continues with the first\ninstruction of the method.\nIf the method to be invoked is native and the platform-dependent\ncode that implements it has not yet been bound\n(\u00a75.6) into the Java Virtual Machine, then that is\ndone. The nargs argument values and objectref are popped from\nthe operand stack and are passed as parameters to the code that\nimplements the method. The parameters are passed and the code is invoked in an\nimplementation-dependent manner. When the platform-dependent code\nreturns:\nIf the native method is synchronized, the monitor\nassociated with objectref is updated and possibly exited as\nif by execution of a monitorexit instruction\n(\u00a7monitorexit) in the current\tthread.\nIf the native method returns a value, the return value of\nthe platform-dependent code is converted in an\nimplementation-dependent way to the return type of the\nnative method and pushed onto the operand stack.\nIf the native method is synchronized, the monitor\nassociated with objectref is updated and possibly exited as\nif by execution of a monitorexit instruction\n(\u00a7monitorexit) in the current\tthread.\nIf the native method returns a value, the return value of\nthe platform-dependent code is converted in an\nimplementation-dependent way to the return type of the\nnative method and pushed onto the operand stack.\nIf the native method is synchronized, the monitor\nassociated with objectref is updated and possibly exited as\nif by execution of a monitorexit instruction\n(\u00a7monitorexit) in the current\tthread.\nIf the native method returns a value, the return value of\nthe platform-dependent code is converted in an\nimplementation-dependent way to the return type of the\nnative method and pushed onto the operand stack."
+      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to an\ninterface method (\u00a75.1), which gives the\nname and descriptor (\u00a74.3.3) of the\ninterface method as well as a symbolic reference to the interface\nin which the interface method is to be found. The named interface\nmethod is resolved (\u00a75.4.3.4).\nThe resolved interface method must not be an instance\ninitialization method, or the class or interface initialization\nmethod (\u00a72.9.1,\n\u00a72.9.2).\nThe count operand is an unsigned byte that must not be zero. The\nobjectref must be of type reference and must be followed on the\noperand stack by nargs argument values, where the number, type,\nand order of the values must be consistent with the descriptor of\nthe resolved interface method. The value of the fourth operand\nbyte must always be zero.\nLet C be the class of objectref. A method is selected with\nrespect to C and the resolved method (\u00a75.4.6).\nThis is the method to be invoked.\nIf the method to be invoked is synchronized, the monitor\nassociated with objectref is entered or reentered as if by\nexecution of a monitorenter instruction\n(\u00a7monitorenter) in the current\nthread.\nIf the method to be invoked is not native, the nargs argument values and\nobjectref are popped from the operand stack. A new frame is\ncreated on the Java Virtual Machine stack for the method being invoked. The\nobjectref and the argument values are consecutively made the\nvalues of local variables of the new frame, with objectref in\nlocal variable 0, arg1 in local variable 1 (or, if arg1 is of\ntype long or double, in local variables 1 and 2), and so\non. The new frame is then made current,\nand the Java Virtual Machine pc is set to the opcode of the first instruction\nof the method to be invoked. Execution continues with the first\ninstruction of the method.\nIf the method to be invoked is native and the platform-dependent\ncode that implements it has not yet been bound\n(\u00a75.6) into the Java Virtual Machine, then that is\ndone. The nargs argument values and objectref are popped from\nthe operand stack and are passed as parameters to the code that\nimplements the method. The parameters are passed and the code is invoked in an\nimplementation-dependent manner. When the platform-dependent code\nreturns:\nIf the native method is synchronized, the monitor\nassociated with objectref is updated and possibly exited as\nif by execution of a monitorexit instruction\n(\u00a7monitorexit) in the current thread.\nIf the native method returns a value, the return value of\nthe platform-dependent code is converted in an\nimplementation-dependent way to the return type of the\nnative method and pushed onto the operand stack.\nIf the native method is synchronized, the monitor\nassociated with objectref is updated and possibly exited as\nif by execution of a monitorexit instruction\n(\u00a7monitorexit) in the current thread.\nIf the native method returns a value, the return value of\nthe platform-dependent code is converted in an\nimplementation-dependent way to the return type of the\nnative method and pushed onto the operand stack.\nIf the native method is synchronized, the monitor\nassociated with objectref is updated and possibly exited as\nif by execution of a monitorexit instruction\n(\u00a7monitorexit) in the current thread.\nIf the native method returns a value, the return value of\nthe platform-dependent code is converted in an\nimplementation-dependent way to the return type of the\nnative method and pushed onto the operand stack."
     },
     {
       "name": "invokespecial",
@@ -2686,7 +2269,7 @@
     },
     {
       "name": "ior",
-      "operation": "Boolean OR int",
+      "operation": "Bitwise OR int",
       "formats": [
         []
       ],
@@ -2835,7 +2418,7 @@
     },
     {
       "name": "ixor",
-      "operation": "Boolean XOR int",
+      "operation": "Bitwise XOR int",
       "formats": [
         []
       ],
@@ -2963,7 +2546,7 @@
     },
     {
       "name": "land",
-      "operation": "Boolean AND long",
+      "operation": "Bitwise AND long",
       "formats": [
         []
       ],
@@ -3195,7 +2778,7 @@
     },
     {
       "name": "lor",
-      "operation": "Boolean OR long",
+      "operation": "Bitwise OR long",
       "formats": [
         []
       ],
@@ -3344,7 +2927,7 @@
     },
     {
       "name": "lxor",
-      "operation": "Boolean XOR long",
+      "operation": "Bitwise XOR long",
       "formats": [
         []
       ],
@@ -3502,7 +3085,7 @@
         }
       ],
       "stack": "..., objectref, value \u2192 ...",
-      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to a field\n(\u00a75.1), which gives the name and descriptor\nof the field as well as a symbolic reference to the class in which\nthe field is to be found. The referenced field is resolved\n(\u00a75.4.3.2).\nThe type of a value stored by a putfield instruction must be\ncompatible with the descriptor of the referenced field (\u00a74.3.2). If the field descriptor type is\nboolean, byte, char, short, or int, then the value\nmust be an int. If the field descriptor type is float, long,\nor double, then the value must be a float, long, or\ndouble, respectively. If the field descriptor type is a\nreference type, then the value must be of a type that is\nassignment compatible (JLS \u00a75.2) with the field descriptor\ntype. If the field is final, it must be declared in the current\nclass, and the instruction must occur in an instance\ninitialization method of the current class (\u00a72.9.1).\nThe value and objectref are popped from the operand stack.\nThe objectref must be of type reference but not an array type.\nIf the value is of type int and the field descriptor type is\none of byte, char, short, or boolean, then the int value\nis converted to the field descriptor type as follows.\nIf the field descriptor type is byte, char, or short, then the\nint value is truncated to a value of the field descriptor type,\nvalue'.\nIf the field descriptor type is boolean, then the int value is\nnarrowed by taking the bitwise AND of value and 1, resulting in\nvalue'.\nThe referenced field in objectref is set to value'.\nOtherwise, the referenced field in objectref is set to value."
+      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to a field\n(\u00a75.1), which gives the name and descriptor\nof the field as well as a symbolic reference to the class in which\nthe field is to be found. The referenced field is resolved\n(\u00a75.4.3.2).\nThe type of a value stored by a putfield instruction must be\ncompatible with the descriptor of the referenced field (\u00a74.3.2). If the field descriptor type is\nboolean, byte, char, short, or int, then the value\nmust be an int. If the field descriptor type is float, long,\nor double, then the value must be a float, long, or\ndouble, respectively. If the field descriptor type is a class type or\nan array type, then the value must be a value of the field descriptor\ntype. If the field is final, it must be declared in the current\nclass, and the instruction must occur in an instance\ninitialization method of the current class (\u00a72.9.1).\nThe value and objectref are popped from the operand stack.\nThe objectref must be of type reference but not an array type.\nIf the value is of type int and the field descriptor type is\none of byte, char, short, or boolean, then the int value\nis converted to the field descriptor type as follows.\nIf the field descriptor type is byte, char, or short, then the\nint value is truncated to a value of the field descriptor type,\nvalue'.\nIf the field descriptor type is boolean, then the int value is\nnarrowed by taking the bitwise AND of value and 1, resulting in\nvalue'.\nThe referenced field in objectref is set to value'.\nOtherwise, the referenced field in objectref is set to value."
     },
     {
       "name": "putstatic",
@@ -3520,7 +3103,7 @@
         }
       ],
       "stack": "..., value \u2192 ...",
-      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to a field\n(\u00a75.1), which gives the name and descriptor\nof the field as well as a symbolic reference to the class or\ninterface in which the field is to be found. The referenced field\nis resolved (\u00a75.4.3.2).\nOn successful resolution of the field, the class or interface that\ndeclared the resolved field is initialized if that class or\ninterface has not already been initialized (\u00a75.5).\nThe type of a value stored by a putstatic instruction must be\ncompatible with the descriptor of the referenced field\n(\u00a74.3.2). If the field descriptor type is\nboolean, byte, char, short, or int, then the value\nmust be an int. If the field descriptor type is float, long,\nor double, then the value must be a float, long, or\ndouble, respectively. If the field descriptor type is a\nreference type, then the value must be of a type that is\nassignment compatible (JLS \u00a75.2) with the field descriptor\ntype. If the field is final, it must be declared in the current\nclass or interface, and the instruction must occur in the class or\ninterface initialization method of the current class or interface\n(\u00a72.9.2).\nThe value is popped from the operand stack.\nIf the value is of type int and the field descriptor type is\none of byte, char, short, or boolean, then the int value\nis converted to the field descriptor type as follows.\nIf the field descriptor type is byte, char, or short, then the\nint value is truncated to a value of the field descriptor type,\nvalue'.\nIf the field descriptor type is boolean, then the int value is\nnarrowed by taking the bitwise AND of value and 1, resulting in\nvalue'.\nThe referenced field in the class or interface is set to value'.\nOtherwise, the referenced field in the class or interface is set to\nvalue."
+      "description": "The unsigned indexbyte1 and indexbyte2 are used to construct\nan index into the run-time constant pool of the current class\n(\u00a72.6), where the value of the index is\n(indexbyte1 << 8) | indexbyte2. The run-time constant\npool entry at the index must be a symbolic reference to a field\n(\u00a75.1), which gives the name and descriptor\nof the field as well as a symbolic reference to the class or\ninterface in which the field is to be found. The referenced field\nis resolved (\u00a75.4.3.2).\nOn successful resolution of the field, the class or interface that\ndeclared the resolved field is initialized if that class or\ninterface has not already been initialized (\u00a75.5).\nThe type of a value stored by a putstatic instruction must be\ncompatible with the descriptor of the referenced field\n(\u00a74.3.2). If the field descriptor type is\nboolean, byte, char, short, or int, then the value\nmust be an int. If the field descriptor type is float, long,\nor double, then the value must be a float, long, or\ndouble, respectively. If the field descriptor type is a class type or\nan array type, then the value must be a value of the field descriptor\ntype. If the field is final, it must be declared in the current\nclass or interface, and the instruction must occur in the class or\ninterface initialization method of the current class or interface\n(\u00a72.9.2).\nThe value is popped from the operand stack.\nIf the value is of type int and the field descriptor type is\none of byte, char, short, or boolean, then the int value\nis converted to the field descriptor type as follows.\nIf the field descriptor type is byte, char, or short, then the\nint value is truncated to a value of the field descriptor type,\nvalue'.\nIf the field descriptor type is boolean, then the int value is\nnarrowed by taking the bitwise AND of value and 1, resulting in\nvalue'.\nThe referenced field in the class or interface is set to value'.\nOtherwise, the referenced field in the class or interface is set to\nvalue."
     },
     {
       "name": "ret",

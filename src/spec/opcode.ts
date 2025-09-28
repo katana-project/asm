@@ -1,4 +1,4 @@
-// This file was generated on 2024-08-03 12:11:11.669202. Do not edit, changes will be overwritten!
+// This file was generated on 2025-09-28 19:07:18.231258. Do not edit, changes will be overwritten!
 
 /** JVM opcodes. */
 export enum Opcode {
@@ -27,95 +27,12 @@ export enum Opcode {
 	 * and value are popped from the operand stack.
 	 * If value is null, then value is stored as the component of
 	 * the array at index.
-	 * Otherwise, value is non-null. If the type of value is
-	 * assignment compatible with the type of the components of the array
-	 * referenced by arrayref, then value is stored as the component
-	 * of the array at index.
-	 * The following rules are used to determine whether a value that
-	 * is not null is assignment compatible with the array component
-	 * type. If S is the type of the object referred to by value, and
-	 * T is the reference type of the array components, then aastore
-	 * determines whether assignment is compatible as follows:
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC is
-	 * assignable to TC by these run-time rules.
+	 * Otherwise, value is non-null. If value is a value of the component
+	 * type of the array referenced by arrayref, then value is stored as
+	 * the component of the array at index.
+	 * Whether value is a value of the array component type is determined
+	 * according to the rules given for
+	 * §checkcast.
 	 *
 	 * Operands:
 	 *  - `[empty]`
@@ -498,102 +415,140 @@ export enum Opcode {
 	 * a symbolic reference to a class, array, or interface type.
 	 * If objectref is null, then the operand stack is unchanged.
 	 * Otherwise, the named class, array, or interface type is resolved
-	 * (§5.4.3.1). If objectref can be cast to
-	 * the resolved class, array, or interface type, the operand stack is
-	 * unchanged; otherwise, the checkcast instruction throws a
-	 * ClassCastException.
-	 * The following rules are used to determine whether an objectref
-	 * that is not null can be cast to the resolved type. If S is the
-	 * type of the object referred to by objectref, and T is the
-	 * resolved class, array, or interface type, then checkcast
-	 * determines whether objectref can be cast to type T as follows:
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
+	 * (§5.4.3.1). If objectref is a value of the type
+	 * given by the resolved class, array, or interface type, the operand stack is
+	 * unchanged.
+	 * The following rules are used to determine whether a non-null reference to
+	 * an object is a value of a reference type, T.
+	 * If the reference is to an instance of a class C, then:
+	 * If T is the type of a class D, then the reference is
+	 * a value of T if C is D or a subclass of D;
+	 * If T is the type of an interface I, then the reference is
+	 * a value of T if C implements I.
+	 * If the reference is to an array with component type SC, then:
+	 * If T is a class type, then the reference is a value of T
+	 * if T is Object;
+	 * If T is an interface type, then the reference is a value of T
+	 * if T is Cloneable or java.io.Serializable, as defined by the
+	 * bootstrap class loader (§5.3);
 	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
+	 * of components of type TC, then the reference is a value of T
+	 * if one of the following is true:
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
+	 * If the reference is to an instance of a class C, then:
+	 * If T is the type of a class D, then the reference is
+	 * a value of T if C is D or a subclass of D;
+	 * If T is the type of an interface I, then the reference is
+	 * a value of T if C implements I.
+	 * If the reference is to an array with component type SC, then:
+	 * If T is a class type, then the reference is a value of T
+	 * if T is Object;
+	 * If T is an interface type, then the reference is a value of T
+	 * if T is Cloneable or java.io.Serializable, as defined by the
+	 * bootstrap class loader (§5.3);
 	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
+	 * of components of type TC, then the reference is a value of T
+	 * if one of the following is true:
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
+	 * If the reference is to an instance of a class C, then:
+	 * If T is the type of a class D, then the reference is
+	 * a value of T if C is D or a subclass of D;
+	 * If T is the type of an interface I, then the reference is
+	 * a value of T if C implements I.
+	 * If T is the type of a class D, then the reference is
+	 * a value of T if C is D or a subclass of D;
+	 * If T is the type of an interface I, then the reference is
+	 * a value of T if C implements I.
+	 * If T is the type of a class D, then the reference is
+	 * a value of T if C is D or a subclass of D;
+	 * If T is the type of an interface I, then the reference is
+	 * a value of T if C implements I.
+	 * If the reference is to an array with component type SC, then:
+	 * If T is a class type, then the reference is a value of T
+	 * if T is Object;
+	 * If T is an interface type, then the reference is a value of T
+	 * if T is Cloneable or java.io.Serializable, as defined by the
+	 * bootstrap class loader (§5.3);
 	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
+	 * of components of type TC, then the reference is a value of T
+	 * if one of the following is true:
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
+	 * If T is a class type, then the reference is a value of T
+	 * if T is Object;
+	 * If T is an interface type, then the reference is a value of T
+	 * if T is Cloneable or java.io.Serializable, as defined by the
+	 * bootstrap class loader (§5.3);
 	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
+	 * of components of type TC, then the reference is a value of T
+	 * if one of the following is true:
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
+	 * If T is a class type, then the reference is a value of T
+	 * if T is Object;
+	 * If T is an interface type, then the reference is a value of T
+	 * if T is Cloneable or java.io.Serializable, as defined by the
+	 * bootstrap class loader (§5.3);
 	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by recursive application of these
-	 * rules.
+	 * of components of type TC, then the reference is a value of T
+	 * if one of the following is true:
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
+	 * TC and SC are the same type;
+	 * TC is the class type Object;
+	 * TC is a class or interface type,
+	 * SC is a class or interface type, and
+	 * the class or interface named by SC extends or implements
+	 * the class or interface named by TC;
+	 * SC is an array type SCC[], and
+	 * (applying these rules recursively) a reference to an array
+	 * with component type SCC is a value of type TC.
 	 *
 	 * Operands:
 	 *  - `indexbyte1, indexbyte2`
@@ -750,7 +705,7 @@ export enum Opcode {
 	 * nearest representable value using the round to nearest rounding policy
 	 * (§2.8). If the magnitude is too large to
 	 * represent as a double, we say the operation overflows; the result
-	 * is then	an infinity of appropriate sign. If the magnitude is too small
+	 * is then an infinity of appropriate sign. If the magnitude is too small
 	 * to represent as a double, we say the operation underflows;
 	 * the result is then a zero of appropriate sign.
 	 * If either value1 or value2 is NaN, the result is NaN.
@@ -767,7 +722,7 @@ export enum Opcode {
 	 * nearest representable value using the round to nearest rounding policy
 	 * (§2.8). If the magnitude is too large to
 	 * represent as a double, we say the operation overflows; the result
-	 * is then	an infinity of appropriate sign. If the magnitude is too small
+	 * is then an infinity of appropriate sign. If the magnitude is too small
 	 * to represent as a double, we say the operation underflows;
 	 * the result is then a zero of appropriate sign.
 	 * If either value1 or value2 is NaN, the result is NaN.
@@ -784,7 +739,7 @@ export enum Opcode {
 	 * nearest representable value using the round to nearest rounding policy
 	 * (§2.8). If the magnitude is too large to
 	 * represent as a double, we say the operation overflows; the result
-	 * is then	an infinity of appropriate sign. If the magnitude is too small
+	 * is then an infinity of appropriate sign. If the magnitude is too small
 	 * to represent as a double, we say the operation underflows;
 	 * the result is then a zero of appropriate sign.
 	 * The Java Virtual Machine requires support of gradual underflow.
@@ -2449,10 +2404,9 @@ export enum Opcode {
 	 * of the field as well as a symbolic reference to the class in which
 	 * the field is to be found. The referenced field is resolved
 	 * (§5.4.3.2).
-	 * The objectref, which must be
-	 * of type reference but not an array type, is popped from the operand
-	 * stack. The value of the referenced field in objectref is fetched
-	 * and pushed onto the operand stack.
+	 * The objectref, which must be of type reference but not an array type, is
+	 * popped from the operand stack. The value of the referenced field in
+	 * objectref is fetched and pushed onto the operand stack.
 	 *
 	 * Operands:
 	 *  - `indexbyte1, indexbyte2`
@@ -2652,7 +2606,7 @@ export enum Opcode {
 	IALOAD = 0x2e,
 
 	/**
-	 * `iand` instruction - Boolean AND int.
+	 * `iand` instruction - Bitwise AND int.
 	 *
 	 * Both value1 and value2 must be of type int. They are popped
 	 * from the operand stack. An int result is calculated by taking
@@ -3539,98 +3493,15 @@ export enum Opcode {
 	 * constant pool entry at the index must be a symbolic reference to a
 	 * class, array, or interface type.
 	 * If objectref is null, the instanceof instruction pushes an
-	 * int result of 0 as an int onto the operand stack.
+	 * int result of 0 onto the operand stack.
 	 * Otherwise, the named class, array, or interface type is resolved
-	 * (§5.4.3.1). If objectref is an instance of
-	 * the resolved class or array type, or implements the resolved
-	 * interface, the instanceof instruction pushes an int result
-	 * of 1 as an int onto the operand stack; otherwise, it pushes an
-	 * int result of 0.
-	 * The following rules are used to determine whether an objectref
-	 * that is not null is an instance of the resolved type. If S is
-	 * the type of the object referred to by objectref, and T is the
-	 * resolved class, array, or interface type, then instanceof
-	 * determines whether objectref is an instance of T as follows:
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
-	 * If S is a class type, then:
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If T is a class type, then S must be the same class as
-	 * T, or S must be a subclass of T;
-	 * If T is an interface type, then S must implement
-	 * interface T.
-	 * If S is an array type SC[], that is, an array of
-	 * components of type SC, then:
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
-	 * If T is a class type, then T must be Object.
-	 * If T is an interface type, then T must be one of the
-	 * interfaces implemented by arrays (JLS §4.10.3).
-	 * If T is an array type TC[], that is, an array
-	 * of components of type TC, then one of the following must
-	 * be true:
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
-	 * TC and SC are the same primitive type.
-	 * TC and SC are reference types, and type SC can
-	 * be cast to TC by these run-time rules.
+	 * (§5.4.3.1). If objectref is a value of the type
+	 * given by the resolved class, array, or interface type, the instanceof
+	 * instruction pushes an int result of 1 onto the operand stack;
+	 * otherwise, it pushes an int result of 0.
+	 * Whether objectref is a value of the type given by the resolved class,
+	 * array, or interface type is determined according to the rules given for
+	 * §checkcast.
 	 *
 	 * Operands:
 	 *  - `indexbyte1, indexbyte2`
@@ -3754,7 +3625,7 @@ export enum Opcode {
 	 * If the native method is synchronized, the monitor
 	 * associated with objectref is updated and possibly exited as
 	 * if by execution of a monitorexit instruction
-	 * (§monitorexit) in the current	thread.
+	 * (§monitorexit) in the current thread.
 	 * If the native method returns a value, the return value of
 	 * the platform-dependent code is converted in an
 	 * implementation-dependent way to the return type of the
@@ -3762,7 +3633,7 @@ export enum Opcode {
 	 * If the native method is synchronized, the monitor
 	 * associated with objectref is updated and possibly exited as
 	 * if by execution of a monitorexit instruction
-	 * (§monitorexit) in the current	thread.
+	 * (§monitorexit) in the current thread.
 	 * If the native method returns a value, the return value of
 	 * the platform-dependent code is converted in an
 	 * implementation-dependent way to the return type of the
@@ -3770,7 +3641,7 @@ export enum Opcode {
 	 * If the native method is synchronized, the monitor
 	 * associated with objectref is updated and possibly exited as
 	 * if by execution of a monitorexit instruction
-	 * (§monitorexit) in the current	thread.
+	 * (§monitorexit) in the current thread.
 	 * If the native method returns a value, the return value of
 	 * the platform-dependent code is converted in an
 	 * implementation-dependent way to the return type of the
@@ -4204,7 +4075,7 @@ export enum Opcode {
 	INVOKEVIRTUAL = 0xb6,
 
 	/**
-	 * `ior` instruction - Boolean OR int.
+	 * `ior` instruction - Bitwise OR int.
 	 *
 	 * Both value1 and value2 must be of type int. They are popped
 	 * from the operand stack. An int result is calculated by taking
@@ -4426,7 +4297,7 @@ export enum Opcode {
 	IUSHR = 0x7c,
 
 	/**
-	 * `ixor` instruction - Boolean XOR int.
+	 * `ixor` instruction - Bitwise XOR int.
 	 *
 	 * Both value1 and value2 must be of type int. They are popped
 	 * from the operand stack. An int result is calculated by taking
@@ -4567,7 +4438,7 @@ export enum Opcode {
 	LALOAD = 0x2f,
 
 	/**
-	 * `land` instruction - Boolean AND long.
+	 * `land` instruction - Bitwise AND long.
 	 *
 	 * Both value1 and value2 must be of type long. They are popped
 	 * from the operand stack. A long result is calculated by taking
@@ -4963,7 +4834,7 @@ export enum Opcode {
 	LOOKUPSWITCH = 0xab,
 
 	/**
-	 * `lor` instruction - Boolean OR long.
+	 * `lor` instruction - Bitwise OR long.
 	 *
 	 * Both value1 and value2 must be of type long. They are popped
 	 * from the operand stack. A long result is calculated by taking
@@ -5185,7 +5056,7 @@ export enum Opcode {
 	LUSHR = 0x7d,
 
 	/**
-	 * `lxor` instruction - Boolean XOR long.
+	 * `lxor` instruction - Bitwise XOR long.
 	 *
 	 * Both value1 and value2 must be of type long. They are popped
 	 * from the operand stack. A long result is calculated by taking
@@ -5413,9 +5284,8 @@ export enum Opcode {
 	 * boolean, byte, char, short, or int, then the value
 	 * must be an int. If the field descriptor type is float, long,
 	 * or double, then the value must be a float, long, or
-	 * double, respectively. If the field descriptor type is a
-	 * reference type, then the value must be of a type that is
-	 * assignment compatible (JLS §5.2) with the field descriptor
+	 * double, respectively. If the field descriptor type is a class type or
+	 * an array type, then the value must be a value of the field descriptor
 	 * type. If the field is final, it must be declared in the current
 	 * class, and the instruction must occur in an instance
 	 * initialization method of the current class (§2.9.1).
@@ -5461,9 +5331,8 @@ export enum Opcode {
 	 * boolean, byte, char, short, or int, then the value
 	 * must be an int. If the field descriptor type is float, long,
 	 * or double, then the value must be a float, long, or
-	 * double, respectively. If the field descriptor type is a
-	 * reference type, then the value must be of a type that is
-	 * assignment compatible (JLS §5.2) with the field descriptor
+	 * double, respectively. If the field descriptor type is a class type or
+	 * an array type, then the value must be a value of the field descriptor
 	 * type. If the field is final, it must be declared in the current
 	 * class or interface, and the instruction must occur in the class or
 	 * interface initialization method of the current class or interface
