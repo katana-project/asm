@@ -3,8 +3,9 @@ import type { Pool, UTF8Entry } from "../pool";
 import { AttributeType } from "../spec";
 import type { Attributable, Attribute } from "./";
 
+type LVTType = AttributeType.LOCAL_VARIABLE_TABLE | AttributeType.LOCAL_VARIABLE_TYPE_TABLE;
 export interface LocalVariableTableAttribute extends Attribute {
-    type: AttributeType.LOCAL_VARIABLE_TABLE | AttributeType.LOCAL_VARIABLE_TYPE_TABLE;
+    type: LVTType;
     entries: LocalVariable[];
 }
 
@@ -44,7 +45,7 @@ export const readLocalVariableTable = (attr: Attribute, pool: Pool): LocalVariab
 
     return {
         ...attr,
-        type: AttributeType.LOCAL_VARIABLE_TABLE,
+        type: attr.name.string as LVTType,
         entries,
     };
 };

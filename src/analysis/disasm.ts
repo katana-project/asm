@@ -498,7 +498,7 @@ const disassembleAttrs = (attrib: Attributable): string => {
 
 const disassembleAnnos = (attrib: Attributable, refHolder: ReferenceHolder): string => {
     let result = "";
-    if (attrib.attrs.some((a) => a.name.string === AttributeType.DEPRECATED)) {
+    if (attrib.attrs.some((a) => a.type === AttributeType.DEPRECATED)) {
         result += `@${refHolder.name("java/lang/Deprecated")}\n`;
     }
 
