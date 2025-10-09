@@ -5,9 +5,13 @@ import type {
     BootstrapMethodsAttribute,
     CodeAttribute,
     ConstantValueAttribute,
+    EnclosingMethodAttribute,
     ExceptionsAttribute,
     InnerClassesAttribute,
     LocalVariableTableAttribute,
+    MethodParametersAttribute,
+    ModuleMainClassAttribute,
+    ModulePackagesAttribute,
     NestHostAttribute,
     NestMembersAttribute,
     PermittedSubclassesAttribute,
@@ -87,6 +91,7 @@ const checkPoolAccess = (attr: Attribute, pool: Pool): boolean => {
         case AttributeType.SIGNATURE:
             return (attr as SignatureAttribute).signatureEntry?.type === ConstantType.UTF8;
         case AttributeType.LOCAL_VARIABLE_TABLE:
+        case AttributeType.LOCAL_VARIABLE_TYPE_TABLE:
             return (attr as LocalVariableTableAttribute).entries.every(
                 (e) => e.nameEntry?.type === ConstantType.UTF8 && e.descriptorEntry?.type === ConstantType.UTF8
             );
@@ -131,6 +136,20 @@ const checkPoolAccess = (attr: Attribute, pool: Pool): boolean => {
                     (c.innerNameEntry?.type ?? ConstantType.UTF8) === ConstantType.UTF8
                 );
             });
+        case AttributeType.ENCLOSING_METHOD:
+            const emAttr = attr as EnclosingMethodAttribute;
+            return (
+                emAttr.classEntry?.type === ConstantType.CLASS &&
+                (emAttr.methodIndex === 0 || emAttr.methodEntry?.type === ConstantType.NAME_AND_TYPE)
+            );
+        case AttributeType.METHOD_PARAMETERS:
+            return (attr as MethodParametersAttribute).parameters.every(
+                (p) => p.nameIndex === 0 || p.nameEntry?.type === ConstantType.UTF8
+            );
+        case AttributeType.MODULE_MAIN_CLASS:
+            return (attr as ModuleMainClassAttribute).mainClassEntry?.type === ConstantType.CLASS;
+        case AttributeType.MODULE_PACKAGES:
+            return (attr as ModulePackagesAttribute).packages.every((p) => p.entry?.type === ConstantType.PACKAGE);
     }
 
     return true;
@@ -143,6 +162,7 @@ const SUPPORTED_TYPES = new Set<string>([
     AttributeType.SOURCE_FILE,
     AttributeType.SIGNATURE,
     AttributeType.LOCAL_VARIABLE_TABLE,
+    AttributeType.LOCAL_VARIABLE_TYPE_TABLE,
     AttributeType.EXCEPTIONS,
     AttributeType.CONSTANT_VALUE,
     AttributeType.BOOTSTRAP_METHODS,
@@ -151,6 +171,14 @@ const SUPPORTED_TYPES = new Set<string>([
     AttributeType.NEST_HOST,
     AttributeType.NEST_MEMBERS,
     AttributeType.INNER_CLASSES,
+    AttributeType.ENCLOSING_METHOD,
+    AttributeType.DEPRECATED,
+    AttributeType.SYNTHETIC,
+    AttributeType.SOURCE_DEBUG_EXTENSION,
+    AttributeType.LINE_NUMBER_TABLE,
+    AttributeType.METHOD_PARAMETERS,
+    AttributeType.MODULE_PACKAGES,
+    AttributeType.MODULE_MAIN_CLASS,
 ]);
 const checkSingle = (attr: Attribute, pool: Pool, ctx: AttributeContext): boolean => {
     if ((getAllowedContext(attr) & ctx) === 0) {
@@ -194,8 +222,8 @@ const check = (attrib: Attributable, pool: Pool, ctx: AttributeContext): boolean
     return dirty;
 };
 
-const filter = (attrib: Attributable, ...names: string[]): boolean => {
-    const valid = attrib.attrs.filter((a) => !names.includes(a.name?.string));
+const filter = (attrib: Attributable, filterFunc: (attr: Attribute) => boolean): boolean => {
+    const valid = attrib.attrs.filter(filterFunc);
     const dirty = attrib.attrs.length > valid.length;
 
     attrib.attrs = valid;
@@ -214,7 +242,7 @@ export const verify = (node: Node) => {
         check(method, node.pool, AttributeContext.METHOD);
         if ((method.access & Modifier.ABSTRACT) > 0) {
             // Code attributes are not allowed on abstract methods
-            filter(method, AttributeType.CODE);
+            filter(method, (a) => a.name.string !== AttributeType.CODE);
         }
 
         hasDynamic =
@@ -247,10 +275,10 @@ export const verify = (node: Node) => {
 
     if (!hasDynamic) {
         // no InvokeDynamic/Dynamic constant pool entry usages detected, remove
-        filter(node, AttributeType.BOOTSTRAP_METHODS);
+        filter(node, (a) => a.name.string !== AttributeType.BOOTSTRAP_METHODS);
     }
     if ((node.access & Modifier.MODULE) === 0) {
         // no module modifier, remove
-        filter(node, AttributeType.MODULE, AttributeType.MODULE_PACKAGES, AttributeType.MODULE_MAIN_CLASS);
+        filter(node, (a) => !/^Module/i.test(a.name.string));
     }
 };

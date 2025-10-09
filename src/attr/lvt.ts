@@ -4,10 +4,11 @@ import { AttributeType } from "../spec";
 import type { Attributable, Attribute } from "./";
 
 export interface LocalVariableTableAttribute extends Attribute {
-    type: AttributeType.LOCAL_VARIABLE_TABLE;
+    type: AttributeType.LOCAL_VARIABLE_TABLE | AttributeType.LOCAL_VARIABLE_TYPE_TABLE;
     entries: LocalVariable[];
 }
 
+// descriptor = signature for LocalVariableTypeTable
 export interface LocalVariable {
     startPC: number;
     length: number;

@@ -1,0 +1,30 @@
+- [x] ConstantValue
+- [x] Code
+- [ ] StackMapTable
+- [x] Exceptions
+- [x] InnerClasses
+- [x] EnclosingMethod
+- [x] Synthetic
+- [x] Signature
+- [x] SourceFile
+- [x] SourceDebugExtension
+- [x] LineNumberTable
+- [x] LocalVariableTable
+- [x] LocalVariableTypeTable
+- [x] Deprecated
+- [ ] RuntimeVisibleAnnotations
+- [ ] RuntimeInvisibleAnnotations
+- [ ] RuntimeVisibleParameterAnnotations
+- [ ] RuntimeInvisibleParameterAnnotations
+- [ ] RuntimeVisibleTypeAnnotations
+- [ ] RuntimeInvisibleTypeAnnotations
+- [ ] AnnotationDefault
+- [x] BootstrapMethods
+- [x] MethodParameters
+- [ ] Module
+- [x] ModulePackages
+- [x] ModuleMainClass
+- [x] NestHost
+- [x] NestMembers
+- [x] Record
+- [x] PermittedSubclasses

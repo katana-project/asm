@@ -11,14 +11,36 @@ import {
 } from "./bsm";
 import { type CodeAttribute, type ExceptionTableEntry, readCode, writeCode } from "./code";
 import { type ConstantValueAttribute, readConstantValue, writeConstantValue } from "./constant_value";
+import { type EnclosingMethodAttribute, readEnclosingMethod, writeEnclosingMethod } from "./enclosing_method";
 import { type ExceptionEntry, type ExceptionsAttribute, readExceptions, writeExceptions } from "./exceptions";
 import { type InnerClass, type InnerClassesAttribute, readInnerClasses, writeInnerClasses } from "./inner_classes";
+import {
+    type LineNumberTableAttribute,
+    type LineNumberTableEntry,
+    readLineNumberTable,
+    writeLineNumberTable,
+} from "./lnt";
 import {
     type LocalVariable,
     type LocalVariableTableAttribute,
     readLocalVariableTable,
     writeLocalVariableTable,
 } from "./lvt";
+import {
+    type MethodParameter,
+    type MethodParametersAttribute,
+    readMethodParameters,
+    writeMethodParameters,
+} from "./method_params";
+import {
+    type ModuleMainClassAttribute,
+    type ModulePackage,
+    type ModulePackagesAttribute,
+    readModuleMainClass,
+    readModulePackages,
+    writeModuleMainClass,
+    writeModulePackages,
+} from "./module";
 import {
     type NestHostAttribute,
     type NestMember,
@@ -36,6 +58,11 @@ import {
 } from "./permitted_subclasses";
 import { readRecord, type RecordAttribute, type RecordComponent, writeRecord } from "./record";
 import { readSignature, type SignatureAttribute, writeSignature } from "./signature";
+import {
+    readSourceDebugExtension,
+    type SourceDebugExtensionAttribute,
+    writeSourceDebugExtension,
+} from "./source_debug_ext";
 import { readSourceFile, type SourceFileAttribute, writeSourceFile } from "./source_file";
 
 export interface Attribute extends DirtyMarkable {
@@ -75,6 +102,7 @@ const readSingle = (buffer: Buffer, pool: Pool, flags: number): Attribute => {
                     attr = readSignature(attr, pool);
                     break;
                 case AttributeType.LOCAL_VARIABLE_TABLE:
+                case AttributeType.LOCAL_VARIABLE_TYPE_TABLE:
                     attr = readLocalVariableTable(attr, pool);
                     break;
                 case AttributeType.EXCEPTIONS:
@@ -100,6 +128,29 @@ const readSingle = (buffer: Buffer, pool: Pool, flags: number): Attribute => {
                     break;
                 case AttributeType.INNER_CLASSES:
                     attr = readInnerClasses(attr, pool);
+                    break;
+                case AttributeType.ENCLOSING_METHOD:
+                    attr = readEnclosingMethod(attr, pool);
+                    break;
+                case AttributeType.SOURCE_DEBUG_EXTENSION:
+                    attr = readSourceDebugExtension(attr);
+                    break;
+                case AttributeType.LINE_NUMBER_TABLE:
+                    attr = readLineNumberTable(attr);
+                    break;
+                case AttributeType.METHOD_PARAMETERS:
+                    attr = readMethodParameters(attr, pool);
+                    break;
+                case AttributeType.MODULE_MAIN_CLASS:
+                    attr = readModuleMainClass(attr, pool);
+                    break;
+                case AttributeType.MODULE_PACKAGES:
+                    attr = readModulePackages(attr, pool);
+                    break;
+                case AttributeType.DEPRECATED:
+                case AttributeType.SYNTHETIC:
+                    // zero-length attributes
+                    attr.type = attr.name.string as AttributeType;
                     break;
             }
         } catch (e) {
@@ -146,6 +197,7 @@ const writeSingle = (buffer: Buffer, attr: Attribute) => {
                 attr.data = writeSignature(attr as SignatureAttribute);
                 break;
             case AttributeType.LOCAL_VARIABLE_TABLE:
+            case AttributeType.LOCAL_VARIABLE_TYPE_TABLE:
                 attr.data = writeLocalVariableTable(attr as LocalVariableTableAttribute);
                 break;
             case AttributeType.EXCEPTIONS:
@@ -172,6 +224,29 @@ const writeSingle = (buffer: Buffer, attr: Attribute) => {
             case AttributeType.INNER_CLASSES:
                 attr.data = writeInnerClasses(attr as InnerClassesAttribute);
                 break;
+            case AttributeType.ENCLOSING_METHOD:
+                attr.data = writeEnclosingMethod(attr as EnclosingMethodAttribute);
+                break;
+            case AttributeType.SOURCE_DEBUG_EXTENSION:
+                attr.data = writeSourceDebugExtension(attr as SourceDebugExtensionAttribute);
+                break;
+            case AttributeType.LINE_NUMBER_TABLE:
+                attr.data = writeLineNumberTable(attr as LineNumberTableAttribute);
+                break;
+            case AttributeType.METHOD_PARAMETERS:
+                attr.data = writeMethodParameters(attr as MethodParametersAttribute);
+                break;
+            case AttributeType.MODULE_MAIN_CLASS:
+                attr.data = writeModuleMainClass(attr as ModuleMainClassAttribute);
+                break;
+            case AttributeType.MODULE_PACKAGES:
+                attr.data = writeModulePackages(attr as ModulePackagesAttribute);
+                break;
+            case AttributeType.DEPRECATED:
+            case AttributeType.SYNTHETIC:
+                // zero-length attributes
+                attr.data = new Uint8Array(0);
+                break;
         }
 
         attr.dirty = false;
@@ -195,13 +270,21 @@ export {
     BootstrapMethodsAttribute,
     CodeAttribute,
     ConstantValueAttribute,
+    EnclosingMethodAttribute,
     ExceptionEntry,
     ExceptionsAttribute,
     ExceptionTableEntry,
     InnerClass,
     InnerClassesAttribute,
+    LineNumberTableAttribute,
+    LineNumberTableEntry,
     LocalVariable,
     LocalVariableTableAttribute,
+    MethodParameter,
+    MethodParametersAttribute,
+    ModuleMainClassAttribute,
+    ModulePackage,
+    ModulePackagesAttribute,
     NestHostAttribute,
     NestMember,
     NestMembersAttribute,
@@ -210,5 +293,6 @@ export {
     RecordAttribute,
     RecordComponent,
     SignatureAttribute,
+    SourceDebugExtensionAttribute,
     SourceFileAttribute,
 };
