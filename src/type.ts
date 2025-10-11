@@ -469,7 +469,21 @@ export const parseType = (desc: string): Type => {
             return type;
         }
         case "<": {
-            const closeAngle = desc.indexOf(">");
+            let openedAngles = 0,
+                closeAngle = -1;
+            for (let i = 0; i < desc.length; i++) {
+                const char = desc.charAt(i);
+                if (char === "<") {
+                    openedAngles++;
+                } else if (char === ">") {
+                    openedAngles--;
+                    if (openedAngles === 0) {
+                        closeAngle = i;
+                        break;
+                    }
+                }
+            }
+
             if (closeAngle === -1) {
                 throw new Error(`Invalid generic signature ${desc}, missing closing angle bracket`);
             }
