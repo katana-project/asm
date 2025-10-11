@@ -34,8 +34,7 @@ import type {
     UTF8Entry,
 } from "../pool";
 import { AttributeType, ConstantType, HandleKind, Opcode } from "../spec";
-import type { Type } from "../type";
-import { parseType } from "../type";
+import { type Type, parseType } from "../type";
 
 export interface Remapper {
     type(type: Type): Type;
@@ -247,9 +246,9 @@ const getLambdaImplementedMethod = (
 
     const methodTypeEntry = methodTypeArg.entry as MethodTypeEntry;
     const implMethodDesc = (pool[methodTypeEntry.descriptor] as UTF8Entry).string;
-    const funcItfType = methodDesc.substring(methodDesc.lastIndexOf(")") + 2, methodDesc.length - 1);
+    const funcItfType = methodDesc.substring(methodDesc.lastIndexOf(")") + 1);
     return {
-        owner: parseType(`L${funcItfType};`),
+        owner: parseType(funcItfType),
         name: methodName,
         type: parseType(implMethodDesc),
     };
@@ -530,6 +529,9 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
 
                 for (const compAttr of component.attrs) {
                     remapAttribute(node, owner, compAttr, remapper);
+                    if (compAttr.dirty) {
+                        changed = true;
+                    }
                 }
             }
             break;
@@ -620,6 +622,9 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
 
             for (const nestedAttr of codeAttr.attrs) {
                 remapAttribute(node, owner, nestedAttr, remapper);
+                if (nestedAttr.dirty) {
+                    changed = true;
+                }
             }
             break;
         }
