@@ -287,7 +287,7 @@ export const readInsns = (data: Uint8Array): Instruction[] => {
         offset += operandLength;
         insns.push({
             opcode,
-            operands: data.slice(offset - operandLength, offset),
+            operands: data.subarray(offset - operandLength, offset),
             offset: insnOffset,
             length: offset - insnOffset,
             dirty: false,

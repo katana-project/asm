@@ -1,4 +1,4 @@
-import type { DirtyMarkable } from "./";
+import { DirtyMarkable, FLAG_SLICE_BUFFER } from "./";
 import { type Buffer, wrap } from "./buffer";
 import { ConstantType, HandleKind } from "./spec";
 
@@ -187,14 +187,13 @@ const computeLength = (buffer: Buffer, size: number): number => {
     return length;
 };
 
-export const readPool = (buffer: Buffer): Pool => {
+export const readPool = (buffer: Buffer, flags: number = 0): Pool => {
     const size = buffer.getUint16();
 
     const pool = new Array<Entry | null>(size);
     pool.fill(null);
 
-    // create a copy of the entire pool, allocating small buffers for each string is expensive
-    const poolBuffer = wrap(buffer.get(computeLength(buffer, size), true));
+    const poolBuffer = (flags & FLAG_SLICE_BUFFER) === 0 ? buffer : wrap(buffer.get(computeLength(buffer, size), true));
     for (let i = 1; i < size; i++) {
         const entry = readSingle(poolBuffer, i);
         pool[i] = entry;

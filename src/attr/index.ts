@@ -1,4 +1,4 @@
-import { type DirtyMarkable, FLAG_SKIP_ATTR, FLAG_SKIP_ATTR_PARSE } from "../";
+import { type DirtyMarkable, FLAG_SKIP_ATTR, FLAG_SKIP_ATTR_PARSE, FLAG_SLICE_BUFFER } from "../";
 import type { Buffer } from "../buffer";
 import type { Pool, UTF8Entry } from "../pool";
 import { AttributeType } from "../spec";
@@ -81,7 +81,7 @@ const readSingle = (buffer: Buffer, pool: Pool, flags: number): Attribute => {
     const nameIndex = buffer.getUint16();
     const name = pool[nameIndex] as UTF8Entry | undefined;
 
-    const data = buffer.get(buffer.getInt32(), true);
+    const data = buffer.get(buffer.getInt32(), (flags & FLAG_SLICE_BUFFER) !== 0);
 
     let attr: Attribute = {
         dirty: false,

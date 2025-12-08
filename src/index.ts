@@ -34,8 +34,12 @@ const readMember = (buffer: Buffer, pool: Pool, flags: number): Member => {
     };
 };
 
+// skips attribute reading completely (they will be empty arrays), useful for holding onto structure + pool only
 export const FLAG_SKIP_ATTR = 1 << 0;
+// skips attribute parsing (they will be read as raw bytes and not interpreted), useful for on-demand reading
 export const FLAG_SKIP_ATTR_PARSE = 1 << 1;
+// slices the buffer to the actual pieces used, as opposed to just making views; useful for not holding onto large buffers with unused data
+export const FLAG_SLICE_BUFFER = 1 << 2;
 
 export const read = (buf: Uint8Array, flags: number = 0): Node => {
     const buffer = wrap(buf);
@@ -44,7 +48,7 @@ export const read = (buf: Uint8Array, flags: number = 0): Node => {
         magic: buffer.getUint32(),
         minor: buffer.getUint16(),
         major: buffer.getUint16(),
-        pool: readPool(buffer),
+        pool: readPool(buffer, flags),
         access: buffer.getUint16(),
     };
 

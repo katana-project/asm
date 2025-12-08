@@ -1,6 +1,6 @@
 {
     "name": "@katana-project/asm",
-    "version": "0.21.1",
+    "version": "0.22.0",
     "type": "module",
     "author": "katana-project",
     "license": "MIT",

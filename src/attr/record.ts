@@ -17,7 +17,7 @@ export interface RecordAttribute extends Attribute {
     components: RecordComponent[];
 }
 
-export const readRecord = (attr: Attribute, pool: Pool, flags: number): RecordAttribute => {
+export const readRecord = (attr: Attribute, pool: Pool, flags: number = 0): RecordAttribute => {
     const buffer = wrap(attr.data);
 
     const numComponents = buffer.getUint16();
