@@ -1,6 +1,6 @@
 {
     "name": "@katana-project/asm",
-    "version": "0.22.0",
+    "version": "0.23.0",
     "type": "module",
     "author": "katana-project",
     "license": "MIT",
@@ -61,15 +61,15 @@
         "format": "prettier . --write"
     },
     "devDependencies": {
-        "@types/chai": "^5.2.0",
+        "@types/chai": "^5.2.3",
         "@types/mocha": "^10.0.10",
-        "@types/node": "^22.13.9",
-        "chai": "^5.2.0",
-        "mocha": "^11.1.0",
-        "prettier": "^3.5.3",
-        "prettier-plugin-organize-imports": "^4.1.0",
-        "tsx": "^4.19.3",
-        "typescript": "^5.8.2"
+        "@types/node": "^25.0.3",
+        "chai": "^6.2.2",
+        "mocha": "^11.7.5",
+        "prettier": "^3.7.4",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3"
     },
-    "packageManager": "pnpm@10.6.0+sha512.df0136e797db0cfa7ec1084e77f3bdf81bacbae9066832fbf95cba4c2140ad05e64f316cde51ce3f99ea00a91ffc702d6aedd3c0f450f895e3e7c052fe573cd8"
+    "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
 }
