@@ -1,6 +1,7 @@
 import type { Member, Node } from "../";
 import type {
     Attributable,
+    BootstrapMethodsAttribute,
     CodeAttribute,
     ConstantValueAttribute,
     ExceptionsAttribute,
@@ -8,7 +9,7 @@ import type {
     SignatureAttribute,
     SourceFileAttribute,
 } from "../attr";
-import { findLocals, localSize } from "../attr/lvt";
+import { localsAt, localSize } from "../attr/lvt";
 import type {
     ArrayInstruction,
     BranchInstruction,
@@ -22,7 +23,7 @@ import type {
     TypeInstruction,
     WideInstruction,
 } from "../insn";
-import { findSwitchValue } from "../insn/switch";
+import { switchValue } from "../insn/switch";
 import type {
     ClassEntry,
     DynamicEntry,
@@ -181,7 +182,7 @@ export const escapeLiteral = (s?: string): string => {
         .join("");
 };
 
-export const formatEntry = (entry: Entry, pool: Pool): string => {
+export const formatEntry = (entry: Entry, pool: Pool, bsmAttr?: BootstrapMethodsAttribute): string => {
     switch (entry.type) {
         case ConstantType.UTF8:
             return (entry as UTF8Entry).string;
@@ -191,21 +192,21 @@ export const formatEntry = (entry: Entry, pool: Pool): string => {
         case ConstantType.DOUBLE:
             return (entry as NumericEntry<any>).value.toString();
         case ConstantType.CLASS:
-            return escapeLiteral(formatEntry((entry as ClassEntry).nameEntry, pool));
+            return escapeLiteral(formatEntry((entry as ClassEntry).nameEntry, pool, bsmAttr));
         case ConstantType.STRING:
-            return `"${escapeString(formatEntry((entry as StringEntry).dataEntry, pool))}"`;
+            return `"${escapeString(formatEntry((entry as StringEntry).dataEntry, pool, bsmAttr))}"`;
         case ConstantType.METHOD_TYPE:
-            return formatEntry((entry as MethodTypeEntry).descriptorEntry, pool);
+            return formatEntry((entry as MethodTypeEntry).descriptorEntry, pool, bsmAttr);
         case ConstantType.MODULE:
-            return escapeString(formatEntry((entry as ModularEntry).nameEntry, pool));
+            return escapeString(formatEntry((entry as ModularEntry).nameEntry, pool, bsmAttr));
         case ConstantType.PACKAGE:
-            return escapeLiteral(formatEntry((entry as ModularEntry).nameEntry, pool));
+            return escapeLiteral(formatEntry((entry as ModularEntry).nameEntry, pool, bsmAttr));
         case ConstantType.FIELDREF:
         case ConstantType.METHODREF:
         case ConstantType.INTERFACE_METHODREF: {
             const refEntry = entry as RefEntry;
 
-            return `${formatEntry(refEntry.refEntry, pool)} ${formatEntry(refEntry.nameTypeEntry, pool)}`;
+            return `${formatEntry(refEntry.refEntry, pool, bsmAttr)} ${formatEntry(refEntry.nameTypeEntry, pool, bsmAttr)}`;
         }
         case ConstantType.NAME_AND_TYPE: {
             const ntEntry = entry as NameTypeEntry;
@@ -216,19 +217,31 @@ export const formatEntry = (entry: Entry, pool: Pool): string => {
         case ConstantType.INVOKE_DYNAMIC: {
             const dynEntry = entry as DynamicEntry;
 
-            return `${dynEntry.bsmIndex} ${formatEntry(dynEntry.nameTypeEntry, pool)}`;
+            let bsmDisasm = `${dynEntry.bsmIndex}`;
+            if (bsmAttr) {
+                const bsm = bsmAttr.methods[dynEntry.bsmIndex];
+                if (bsm) {
+                    const args = bsm.args.map((a) => {
+                        return a.entry ? formatEntry(a.entry, pool, bsmAttr) : `${a.index} /* unresolved */`;
+                    });
+
+                    bsmDisasm = `${formatEntry(bsm.refEntry!, pool, bsmAttr)}(${args.join(", ")})`;
+                }
+            }
+
+            return `${bsmDisasm} { ${formatEntry(dynEntry.nameTypeEntry, pool, bsmAttr)} }`;
         }
         case ConstantType.METHOD_HANDLE:
             const handleEntry = entry as HandleEntry;
 
-            return `${HandleKind[handleEntry.kind].toLowerCase()} ${formatEntry(handleEntry.refEntry, pool)}`;
+            return `${HandleKind[handleEntry.kind].toLowerCase()} ${formatEntry(handleEntry.refEntry, pool, bsmAttr)}`;
         default:
             throw new Error("Unrecognized constant pool tag " + entry.type);
     }
 };
 
 const formatLoadStore = (code: CodeAttribute, insn: Instruction, index: number): string => {
-    const local = findLocals(code, insn.offset + insn.length /* occupied on next instruction */).find(
+    const local = localsAt(code, insn.offset + insn.length /* occupied on next instruction */).find(
         (l) => l.index === index
     );
 
@@ -239,6 +252,7 @@ const formatLoadStore = (code: CodeAttribute, insn: Instruction, index: number):
 
 export const formatInsn = (
     code: CodeAttribute,
+    bsmAttr: BootstrapMethodsAttribute | null,
     insn: Instruction,
     pool: Pool,
     branchOffsets: boolean = true
@@ -264,7 +278,7 @@ export const formatInsn = (
         case Opcode.GETSTATIC:
         case Opcode.PUTFIELD:
         case Opcode.PUTSTATIC:
-            value += ` ${formatEntry(pool[(insn as LoadStoreInstruction).index]!, pool)}`;
+            value += ` ${formatEntry(pool[(insn as LoadStoreInstruction).index]!, pool, bsmAttr)}`;
             break;
         case Opcode.IINC: {
             const iincInsn = insn as IncrementInstruction;
@@ -273,24 +287,24 @@ export const formatInsn = (
             break;
         }
         case Opcode.WIDE:
-            value += ` ${formatInsn(code, (insn as WideInstruction).insn, pool)}`;
+            value += ` ${formatInsn(code, bsmAttr, (insn as WideInstruction).insn, pool)}`;
             break;
         case Opcode.INVOKEDYNAMIC:
         case Opcode.INVOKEINTERFACE:
         case Opcode.INVOKESPECIAL:
         case Opcode.INVOKESTATIC:
         case Opcode.INVOKEVIRTUAL:
-            value += ` ${formatEntry(pool[(insn as InvokeInstruction).ref]!, pool)}`;
+            value += ` ${formatEntry(pool[(insn as InvokeInstruction).ref]!, pool, bsmAttr)}`;
             break;
         case Opcode.LDC:
         case Opcode.LDC_W:
         case Opcode.LDC2_W:
-            value += ` ${formatEntry(pool[(insn as ConstantInstruction).index]!, pool)}`;
+            value += ` ${formatEntry(pool[(insn as ConstantInstruction).index]!, pool, bsmAttr)}`;
             break;
         case Opcode.CHECKCAST:
         case Opcode.INSTANCEOF:
         case Opcode.NEW:
-            value += ` ${formatEntry(pool[(insn as TypeInstruction).index]!, pool)}`;
+            value += ` ${formatEntry(pool[(insn as TypeInstruction).index]!, pool, bsmAttr)}`;
             break;
         case Opcode.BIPUSH:
         case Opcode.SIPUSH:
@@ -302,7 +316,7 @@ export const formatInsn = (
             const arrayInsn = insn as ArrayInstruction;
             const arrayCode = ArrayCode[arrayInsn.type];
 
-            value += ` ${arrayCode ? arrayCode.substring(2).toLowerCase() : formatEntry(pool[arrayInsn.type]!, pool)}`;
+            value += ` ${arrayCode ? arrayCode.substring(2).toLowerCase() : formatEntry(pool[arrayInsn.type]!, pool, bsmAttr)}`;
             if (arrayInsn.opcode === Opcode.MULTIANEWARRAY) {
                 value += ` ${arrayInsn.dimensions}`;
             }
@@ -328,7 +342,7 @@ export const formatInsn = (
 
                 value += ` default->${insn.offset + defaultOffset}`;
                 if (jumpOffsets.length > 0) {
-                    value += ` ${jumpOffsets.map((o, i) => `${findSwitchValue(insn as SwitchInstruction, i)}->${insn.offset + o}`).join(" ")}`;
+                    value += ` ${jumpOffsets.map((o, i) => `${switchValue(insn as SwitchInstruction, i)}->${insn.offset + o}`).join(" ")}`;
                 }
                 break;
             }
@@ -505,7 +519,13 @@ const disassembleAnnos = (attrib: Attributable, refHolder: ReferenceHolder): str
     return result;
 };
 
-const disassembleCode = (code: CodeAttribute, pool: Pool, indent: string, refHolder: ReferenceHolder): string => {
+const disassembleCode = (
+    code: CodeAttribute,
+    bsmAttr: BootstrapMethodsAttribute | null,
+    pool: Pool,
+    indent: string,
+    refHolder: ReferenceHolder
+): string => {
     const padding = code.insns[code.insns.length - 1].offset.toString().length;
     let level = 0;
 
@@ -536,7 +556,7 @@ const disassembleCode = (code: CodeAttribute, pool: Pool, indent: string, refHol
                 .sort(({ start }) => (start ? 1 : -1))
         );
 
-        result += `${indent.repeat(level)}// ${insn.offset.toString().padStart(padding, " ")}: ${formatInsn(code, insn, pool)}\n`;
+        result += `${indent.repeat(level)}// ${insn.offset.toString().padStart(padding, " ")}: ${formatInsn(code, bsmAttr, insn, pool)}\n`;
     }
 
     const lastInsn = code.insns[code.insns.length - 1];
@@ -595,7 +615,7 @@ const disassembleMethod0 = (
             result += `${formatDesc(returnType, refHolder)} `;
         }
 
-        const locals = code ? findLocals(code, 0) : [];
+        const locals = code ? localsAt(code, 0) : [];
         let localIndex = isStatic ? 0 : 1;
 
         result += `${escapeLiteral(name)}(`;
@@ -622,7 +642,9 @@ const disassembleMethod0 = (
         }
     }
 
-    result += code ? ` {\n${block(disassembleCode(code, node.pool, indent, refHolder), indent)}}\n` : ";\n";
+    const bsmAttr = (node.attrs.find((a) => a.type === AttributeType.BOOTSTRAP_METHODS) ??
+        null) as BootstrapMethodsAttribute | null;
+    result += code ? ` {\n${block(disassembleCode(code, bsmAttr, node.pool, indent, refHolder), indent)}}\n` : ";\n";
 
     if (writeRefs) {
         const refs = refHolder.refs();
@@ -655,7 +677,10 @@ const disassembleField = (node: Node, field: Member, verbose: boolean, refHolder
         const entry = (field.attrs.find((a) => a.type === AttributeType.CONSTANT_VALUE) as ConstantValueAttribute)
             ?.constEntry;
         if (entry) {
-            result += ` = ${formatEntry(entry, node.pool)}`;
+            const bsmAttr = (node.attrs.find((a) => a.type === AttributeType.BOOTSTRAP_METHODS) ??
+                null) as BootstrapMethodsAttribute | null;
+
+            result += ` = ${formatEntry(entry, node.pool, bsmAttr)}`;
         }
     }
 

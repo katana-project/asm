@@ -1,6 +1,6 @@
 import type { CodeAttribute } from "../attr";
 import type { BranchInstruction, Instruction, SwitchInstruction } from "../insn";
-import { findSwitchValue } from "../insn/switch";
+import { switchValue } from "../insn/switch";
 import { Opcode } from "../spec";
 
 const TERMINAL_OPCODES = new Set<number>([
@@ -57,7 +57,7 @@ const getTargetEdges = (insn: Instruction): UndirectedEdge[] => {
                     target: insn.offset + offset,
                     type: EdgeType.SWITCH_BRANCH,
                     jump: true,
-                    value: findSwitchValue(insn as SwitchInstruction, i),
+                    value: switchValue(insn as SwitchInstruction, i),
                 })),
             ];
         }

@@ -72,7 +72,7 @@ export const writeLocalVariableTable = (attr: LocalVariableTableAttribute): Uint
     return buffer.arrayView;
 };
 
-export const findLocals = (attrib: Attributable, offset: number): LocalVariable[] => {
+export const localsAt = (attrib: Attributable, offset: number): LocalVariable[] => {
     const locals: LocalVariable[] = [];
     for (const attr of attrib.attrs) {
         if (attr.type !== AttributeType.LOCAL_VARIABLE_TABLE) continue;

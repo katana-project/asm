@@ -88,7 +88,7 @@ export const writeSwitch = (insn: SwitchInstruction, initialSize: number = TYPIC
     return { ...insn, operands: buffer.arrayView };
 };
 
-export const findSwitchValue = (insn: SwitchInstruction, jumpIndex: number) => {
+export const switchValue = (insn: SwitchInstruction, jumpIndex: number) => {
     if (insn.opcode === Opcode.TABLESWITCH) {
         return (insn as TableSwitchInstruction).lowCase + jumpIndex;
     }
