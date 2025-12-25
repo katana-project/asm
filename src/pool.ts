@@ -23,6 +23,7 @@ export interface LongEntry extends NumericEntry<bigint> {
 export interface ClassEntry extends Entry {
     type: ConstantType.CLASS;
     name: number; // UTF8Entry index
+    nameEntry?: UTF8Entry;
 }
 
 export interface UTF8Entry extends Entry, DirtyMarkable {
@@ -34,40 +35,49 @@ export interface UTF8Entry extends Entry, DirtyMarkable {
 export interface StringEntry extends Entry {
     type: ConstantType.STRING;
     data: number; // UTF8Entry index
+    dataEntry?: UTF8Entry;
 }
 
 export interface NameTypeEntry extends Entry {
     type: ConstantType.NAME_AND_TYPE;
     name: number; // UTF8Entry index
+    nameEntry?: UTF8Entry;
     type_: number; // UTF8Entry index
+    typeEntry?: UTF8Entry;
 }
 
 export interface RefEntry extends Entry {
     type: ConstantType.FIELDREF | ConstantType.METHODREF | ConstantType.INTERFACE_METHODREF;
     ref: number; // ClassEntry index
+    refEntry?: ClassEntry;
     nameType: number; // NameTypeEntry index
+    nameTypeEntry?: NameTypeEntry;
 }
 
 export interface ModularEntry extends Entry {
     type: ConstantType.MODULE | ConstantType.PACKAGE;
     name: number; // UTF8Entry index
+    nameEntry?: UTF8Entry;
 }
 
 export interface DynamicEntry extends Entry {
     type: ConstantType.DYNAMIC | ConstantType.INVOKE_DYNAMIC;
     bsmIndex: number;
     nameType: number; // NameTypeEntry index
+    nameTypeEntry?: NameTypeEntry;
 }
 
 export interface HandleEntry extends Entry {
     type: ConstantType.METHOD_HANDLE;
     ref: number; // RefEntry index
+    refEntry?: RefEntry;
     kind: HandleKind;
 }
 
 export interface MethodTypeEntry extends Entry {
     type: ConstantType.METHOD_TYPE;
     descriptor: number; // UTF8Entry index
+    descriptorEntry?: UTF8Entry;
 }
 
 export type Pool = (Entry | null)[];
@@ -203,6 +213,53 @@ export const readPool = (buffer: Buffer, flags: number = 0): Pool => {
         }
     }
 
+    // resolve entry references
+    for (let i = 1; i < size; i++) {
+        const entry = pool[i];
+        if (!entry) continue;
+
+        switch (entry.type) {
+            case ConstantType.CLASS:
+                const classEntry = entry as ClassEntry;
+                classEntry.nameEntry = pool[classEntry.name] as UTF8Entry;
+                break;
+            case ConstantType.STRING:
+                const stringEntry = entry as StringEntry;
+                stringEntry.dataEntry = pool[stringEntry.data] as UTF8Entry;
+                break;
+            case ConstantType.NAME_AND_TYPE:
+                const nameTypeEntry = entry as NameTypeEntry;
+                nameTypeEntry.nameEntry = pool[nameTypeEntry.name] as UTF8Entry;
+                nameTypeEntry.typeEntry = pool[nameTypeEntry.type_] as UTF8Entry;
+                break;
+            case ConstantType.FIELDREF:
+            case ConstantType.METHODREF:
+            case ConstantType.INTERFACE_METHODREF:
+                const refEntry = entry as RefEntry;
+                refEntry.refEntry = pool[refEntry.ref] as ClassEntry;
+                refEntry.nameTypeEntry = pool[refEntry.nameType] as NameTypeEntry;
+                break;
+            case ConstantType.MODULE:
+            case ConstantType.PACKAGE:
+                const modularEntry = entry as ModularEntry;
+                modularEntry.nameEntry = pool[modularEntry.name] as UTF8Entry;
+                break;
+            case ConstantType.DYNAMIC:
+            case ConstantType.INVOKE_DYNAMIC:
+                const dynamicEntry = entry as DynamicEntry;
+                dynamicEntry.nameTypeEntry = pool[dynamicEntry.nameType] as NameTypeEntry;
+                break;
+            case ConstantType.METHOD_HANDLE:
+                const handleEntry = entry as HandleEntry;
+                handleEntry.refEntry = pool[handleEntry.ref] as RefEntry;
+                break;
+            case ConstantType.METHOD_TYPE:
+                const methodTypeEntry = entry as MethodTypeEntry;
+                methodTypeEntry.descriptorEntry = pool[methodTypeEntry.descriptor] as UTF8Entry;
+                break;
+        }
+    }
+
     return pool;
 };
 
@@ -233,28 +290,60 @@ const writeSingle = (buffer: Buffer, entry: Entry) => {
             buffer.setFloat64((entry as NumberEntry).value);
             break;
         case ConstantType.CLASS:
-            buffer.setUint16((entry as ClassEntry).name);
+            const classEntry = entry as ClassEntry;
+            if (classEntry.nameEntry) {
+                classEntry.name = classEntry.nameEntry.index;
+            }
+
+            buffer.setUint16(classEntry.name);
             break;
         case ConstantType.STRING:
-            buffer.setUint16((entry as StringEntry).data);
+            const stringEntry = entry as StringEntry;
+            if (stringEntry.dataEntry) {
+                stringEntry.data = stringEntry.dataEntry.index;
+            }
+
+            buffer.setUint16(stringEntry.data);
             break;
         case ConstantType.METHOD_TYPE:
-            buffer.setUint16((entry as MethodTypeEntry).descriptor);
+            const methodTypeEntry = entry as MethodTypeEntry;
+            if (methodTypeEntry.descriptorEntry) {
+                methodTypeEntry.descriptor = methodTypeEntry.descriptorEntry.index;
+            }
+
+            buffer.setUint16(methodTypeEntry.descriptor);
             break;
         case ConstantType.MODULE:
         case ConstantType.PACKAGE:
-            buffer.setUint16((entry as ModularEntry).name);
+            const modEntry = entry as ModularEntry;
+            if (modEntry.nameEntry) {
+                modEntry.name = modEntry.nameEntry.index;
+            }
+
+            buffer.setUint16(modEntry.name);
             break;
         case ConstantType.FIELDREF:
         case ConstantType.METHODREF:
         case ConstantType.INTERFACE_METHODREF:
             const refEntry = entry as RefEntry;
+            if (refEntry.refEntry) {
+                refEntry.ref = refEntry.refEntry.index;
+            }
+            if (refEntry.nameTypeEntry) {
+                refEntry.nameType = refEntry.nameTypeEntry.index;
+            }
 
             buffer.setUint16(refEntry.ref);
             buffer.setUint16(refEntry.nameType);
             break;
         case ConstantType.NAME_AND_TYPE:
             const nameTypeEntry = entry as NameTypeEntry;
+            if (nameTypeEntry.nameEntry) {
+                nameTypeEntry.name = nameTypeEntry.nameEntry.index;
+            }
+            if (nameTypeEntry.typeEntry) {
+                nameTypeEntry.type_ = nameTypeEntry.typeEntry.index;
+            }
 
             buffer.setUint16(nameTypeEntry.name);
             buffer.setUint16(nameTypeEntry.type_);
@@ -262,12 +351,18 @@ const writeSingle = (buffer: Buffer, entry: Entry) => {
         case ConstantType.DYNAMIC:
         case ConstantType.INVOKE_DYNAMIC:
             const dynamicEntry = entry as DynamicEntry;
+            if (dynamicEntry.nameTypeEntry) {
+                dynamicEntry.nameType = dynamicEntry.nameTypeEntry.index;
+            }
 
             buffer.setUint16(dynamicEntry.bsmIndex);
             buffer.setUint16(dynamicEntry.nameType);
             break;
         case ConstantType.METHOD_HANDLE:
             const handleEntry = entry as HandleEntry;
+            if (handleEntry.refEntry) {
+                handleEntry.ref = handleEntry.refEntry.index;
+            }
 
             buffer.setUint8(handleEntry.kind);
             buffer.setUint16(handleEntry.ref);

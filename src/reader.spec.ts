@@ -3,7 +3,6 @@ import { opendirSync, readFileSync, type Dirent } from "node:fs";
 import { join } from "node:path";
 import { FLAG_SKIP_ATTR, read, write } from "./";
 import type { Attributable, CodeAttribute } from "./attr";
-import type { UTF8Entry } from "./pool";
 import { AttributeType } from "./spec";
 
 describe("reader", () => {
@@ -13,7 +12,7 @@ describe("reader", () => {
 
         expect(result.magic).equal(0xcafebabe);
 
-        const name = (result.pool[result.thisClass.name] as UTF8Entry).string;
+        const name = result.thisClass.nameEntry.string;
         expect(name).equal("sample/string/StringsLong");
 
         // for (const attribute of result.attributes) {

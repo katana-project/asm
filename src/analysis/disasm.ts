@@ -191,37 +191,37 @@ export const formatEntry = (entry: Entry, pool: Pool): string => {
         case ConstantType.DOUBLE:
             return (entry as NumericEntry<any>).value.toString();
         case ConstantType.CLASS:
-            return escapeLiteral(formatEntry(pool[(entry as ClassEntry).name]!, pool));
+            return escapeLiteral(formatEntry((entry as ClassEntry).nameEntry, pool));
         case ConstantType.STRING:
-            return `"${escapeString(formatEntry(pool[(entry as StringEntry).data]!, pool))}"`;
+            return `"${escapeString(formatEntry((entry as StringEntry).dataEntry, pool))}"`;
         case ConstantType.METHOD_TYPE:
-            return formatEntry(pool[(entry as MethodTypeEntry).descriptor]!, pool);
+            return formatEntry((entry as MethodTypeEntry).descriptorEntry, pool);
         case ConstantType.MODULE:
-            return escapeString(formatEntry(pool[(entry as ModularEntry).name]!, pool));
+            return escapeString(formatEntry((entry as ModularEntry).nameEntry, pool));
         case ConstantType.PACKAGE:
-            return escapeLiteral(formatEntry(pool[(entry as ModularEntry).name]!, pool));
+            return escapeLiteral(formatEntry((entry as ModularEntry).nameEntry, pool));
         case ConstantType.FIELDREF:
         case ConstantType.METHODREF:
         case ConstantType.INTERFACE_METHODREF: {
             const refEntry = entry as RefEntry;
 
-            return `${formatEntry(pool[refEntry.ref]!, pool)} ${formatEntry(pool[refEntry.nameType]!, pool)}`;
+            return `${formatEntry(refEntry.refEntry, pool)} ${formatEntry(refEntry.nameTypeEntry, pool)}`;
         }
         case ConstantType.NAME_AND_TYPE: {
             const ntEntry = entry as NameTypeEntry;
 
-            return `${escapeLiteral((pool[ntEntry.name] as UTF8Entry).string)} ${escapeLiteral((pool[ntEntry.type_] as UTF8Entry).string)}`;
+            return `${escapeLiteral(ntEntry.nameEntry.string)} ${escapeLiteral(ntEntry.typeEntry.string)}`;
         }
         case ConstantType.DYNAMIC:
         case ConstantType.INVOKE_DYNAMIC: {
             const dynEntry = entry as DynamicEntry;
 
-            return `${dynEntry.bsmIndex} ${formatEntry(pool[dynEntry.nameType]!, pool)}`;
+            return `${dynEntry.bsmIndex} ${formatEntry(dynEntry.nameTypeEntry, pool)}`;
         }
         case ConstantType.METHOD_HANDLE:
             const handleEntry = entry as HandleEntry;
 
-            return `${HandleKind[handleEntry.kind].toLowerCase()} ${formatEntry(pool[handleEntry.ref]!, pool)}`;
+            return `${HandleKind[handleEntry.kind].toLowerCase()} ${formatEntry(handleEntry.refEntry, pool)}`;
         default:
             throw new Error("Unrecognized constant pool tag " + entry.type);
     }
@@ -521,7 +521,7 @@ const disassembleCode = (code: CodeAttribute, pool: Pool, indent: string, refHol
                 if (entry.catchType === 0) {
                     result += `${refHolder.name("java/lang/Throwable")} /* 0 */`;
                 } else {
-                    result += refHolder.name((pool[(pool[entry.catchType] as ClassEntry).name] as UTF8Entry).string);
+                    result += refHolder.name((pool[entry.catchType] as ClassEntry).nameEntry.string);
                 }
                 result += ` exc${index}) {\n${indent.repeat(level + 1)}/* goto ${entry.handlerPC} */\n${indent.repeat(level)}}\n`;
             }
@@ -587,7 +587,7 @@ const disassembleMethod0 = (
 
         const [args, returnType] = method.type.string.substring(1).split(")", 2);
         if (isConstructor) {
-            const nodeName = (node.pool[node.thisClass.name] as UTF8Entry).string;
+            const nodeName = node.thisClass.nameEntry.string;
             refHolder.name(nodeName); // reserve name
 
             name = nodeName.substring(nodeName.lastIndexOf("/") + 1);
@@ -613,7 +613,7 @@ const disassembleMethod0 = (
         if (exceptions) {
             const entries = (exceptions as ExceptionsAttribute).entries
                 .filter((e) => Boolean(e.entry))
-                .map((e) => refHolder.name((node.pool[e.entry.name] as UTF8Entry).string));
+                .map((e) => refHolder.name(e.entry.nameEntry.string));
 
             if (entries.length > 0) {
                 result += " throws ";
@@ -677,7 +677,7 @@ const disassemble0 = (node: Node, indent: string, verbose: boolean, refHolder: R
 
     let result = "";
 
-    const name = (node.pool[node.thisClass.name] as UTF8Entry).string;
+    const name = node.thisClass.nameEntry.string;
     refHolder.name(name); // reserve name
 
     const slashIndex = name.lastIndexOf("/");
@@ -702,11 +702,11 @@ const disassemble0 = (node: Node, indent: string, verbose: boolean, refHolder: R
     result += `${nodeType} ${escapeLiteral(simpleName)} `;
 
     if (node.superClass) {
-        const superName = (node.pool[node.superClass.name] as UTF8Entry).string;
+        const superName = node.superClass.nameEntry.string;
         result += `extends ${refHolder.name(superName)} `;
     }
     if (node.interfaces.length !== 0) {
-        const ifNames = node.interfaces.map((i) => refHolder.name((node.pool[i.name] as UTF8Entry).string));
+        const ifNames = node.interfaces.map((i) => refHolder.name(i.nameEntry.string));
         result += `implements ${ifNames.join(", ")} `;
     }
 
