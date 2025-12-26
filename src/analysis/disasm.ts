@@ -1,11 +1,21 @@
 import type { Member, Node } from "../";
-import type {
+import {
+    Annotation,
+    AnnotationDefaultAttribute,
+    AnnotationElementValue,
+    AnnotationsAttribute,
+    ArrayElementValue,
     Attributable,
     BootstrapMethodsAttribute,
     CodeAttribute,
     ConstantValueAttribute,
+    ConstElementValue,
+    ElementValue,
+    EnumElementValue,
     ExceptionsAttribute,
     ExceptionTableEntry,
+    ModuleAttribute,
+    ParameterAnnotationsAttribute,
     SignatureAttribute,
     SourceFileAttribute,
 } from "../attr";
@@ -32,13 +42,14 @@ import type {
     MethodTypeEntry,
     ModularEntry,
     NameTypeEntry,
+    NumberEntry,
     NumericEntry,
     Pool,
     RefEntry,
     StringEntry,
     UTF8Entry,
 } from "../pool";
-import { ArrayCode, AttributeType, ConstantType, HandleKind, Modifier, Opcode } from "../spec";
+import { ArrayCode, AttributeType, ConstantType, ElementTag, HandleKind, Modifier, Opcode } from "../spec";
 
 export enum NodeType {
     CLASS = "class",
@@ -55,8 +66,12 @@ export enum ElementType {
     METHOD,
     FIELD,
     PARAMETER,
+    MODULE,
+    MODULE_REQUIRES,
+    MODULE_EXPORTS,
 }
 
+// for Java language modifiers
 const modMasks: Record<ElementType, number> = {
     [ElementType.CLASS]: Modifier.PUBLIC | Modifier.ABSTRACT | Modifier.FINAL,
     [ElementType.INTERFACE]: Modifier.PUBLIC | Modifier.ABSTRACT,
@@ -80,6 +95,9 @@ const modMasks: Record<ElementType, number> = {
         Modifier.TRANSIENT |
         Modifier.VOLATILE,
     [ElementType.PARAMETER]: Modifier.FINAL,
+    [ElementType.MODULE]: Modifier.OPEN,
+    [ElementType.MODULE_REQUIRES]: 0,
+    [ElementType.MODULE_EXPORTS]: 0,
 };
 
 export const formatMod = (mod: number, element?: ElementType): string => {
@@ -87,28 +105,54 @@ export const formatMod = (mod: number, element?: ElementType): string => {
     mod = mod & (modMasks[element] ?? 0);
 
     let result = "";
-    if ((mod & Modifier.PUBLIC) !== 0) result += "public ";
-    if ((mod & Modifier.PRIVATE) !== 0) result += "private ";
-    if ((mod & Modifier.PROTECTED) !== 0) result += "protected ";
-    if ((mod & Modifier.STATIC) !== 0) result += "static ";
-    if ((mod & Modifier.ABSTRACT) !== 0) result += "abstract ";
-    if ((mod & Modifier.FINAL) !== 0) result += "final ";
-    if ((mod & Modifier.NATIVE) !== 0) result += "native ";
-    if ((mod & Modifier.STRICT) !== 0) result += "strict ";
-    if ((mod & Modifier.SYNCHRONIZED) !== 0) result += "synchronized ";
-    if ((mod & Modifier.TRANSIENT) !== 0) result += "transient ";
-    if ((mod & Modifier.VOLATILE) !== 0) result += "volatile ";
+    // noinspection FallThroughInSwitchStatementJS
+    switch (element) {
+        case ElementType.MODULE: {
+            if ((uMod & Modifier.OPEN) !== 0) result += "open ";
+            if ((uMod & Modifier.SYNTHETIC) !== 0) result += "synthetic ";
+            if ((uMod & Modifier.MANDATED) !== 0) result += "mandated ";
+            break;
+        }
+        case ElementType.MODULE_REQUIRES: {
+            if ((uMod & Modifier.TRANSITIVE) !== 0) result += "transitive ";
+            if ((uMod & Modifier.STATIC_PHASE) !== 0) result += "static ";
+            if ((uMod & Modifier.SYNTHETIC) !== 0) result += "synthetic ";
+            if ((uMod & Modifier.MANDATED) !== 0) result += "mandated ";
+            break;
+        }
+        case ElementType.MODULE_EXPORTS: {
+            if ((uMod & Modifier.SYNTHETIC) !== 0) result += "synthetic ";
+            if ((uMod & Modifier.MANDATED) !== 0) result += "mandated ";
+            break;
+        }
+        default: {
+            if ((mod & Modifier.PUBLIC) !== 0) result += "public ";
+            if ((mod & Modifier.PRIVATE) !== 0) result += "private ";
+            if ((mod & Modifier.PROTECTED) !== 0) result += "protected ";
+            if ((mod & Modifier.STATIC) !== 0) result += "static ";
+            if ((mod & Modifier.ABSTRACT) !== 0) result += "abstract ";
+            if ((mod & Modifier.FINAL) !== 0) result += "final ";
+            if ((mod & Modifier.NATIVE) !== 0) result += "native ";
+            if ((mod & Modifier.STRICT) !== 0) result += "strict ";
+            if ((mod & Modifier.SYNCHRONIZED) !== 0) result += "synchronized ";
+            if ((mod & Modifier.TRANSIENT) !== 0) result += "transient ";
+            if ((mod & Modifier.VOLATILE) !== 0) result += "volatile ";
 
-    // unmasked modifier checks for non-Java modifiers
-    if ((uMod & Modifier.SYNTHETIC) !== 0) result += "synthetic ";
-    if (element === ElementType.CLASS || element === ElementType.INTERFACE) {
-        // logical classes
-        if ((uMod & Modifier.SUPER) !== 0) result += "super ";
-    }
-    if (element === ElementType.METHOD || element === ElementType.CONSTRUCTOR) {
-        // logical methods
-        if ((uMod & Modifier.BRIDGE) !== 0) result += "bridge ";
-        if ((uMod & Modifier.VARARGS) !== 0) result += "varargs ";
+            // unmasked modifier checks for non-Java modifiers
+            if ((uMod & Modifier.SYNTHETIC) !== 0) result += "synthetic ";
+            if (element === ElementType.CLASS || element === ElementType.INTERFACE) {
+                // logical classes
+                if ((uMod & Modifier.SUPER) !== 0) result += "super ";
+            }
+            if (element === ElementType.METHOD || element === ElementType.CONSTRUCTOR) {
+                // logical methods
+                if ((uMod & Modifier.BRIDGE) !== 0) result += "bridge ";
+                if ((uMod & Modifier.VARARGS) !== 0) result += "varargs ";
+            }
+            if (element === ElementType.PARAMETER) {
+                if ((uMod & Modifier.MANDATED) !== 0) result += "mandated ";
+            }
+        }
     }
 
     return result;
@@ -225,7 +269,7 @@ export const formatEntry = (entry: Entry, pool: Pool, bsmAttr?: BootstrapMethods
                         return a.entry ? formatEntry(a.entry, pool, bsmAttr) : `${a.index} /* unresolved */`;
                     });
 
-                    bsmDisasm = `${formatEntry(bsm.refEntry!, pool, bsmAttr)}(${args.join(", ")})`;
+                    bsmDisasm = `${formatEntry(bsm.refEntry!, pool, bsmAttr)} ( ${args.join(", ")} )`;
                 }
             }
 
@@ -489,7 +533,12 @@ const EXCLUDED_ATTRS = new Set<string>([
     AttributeType.SIGNATURE,
     AttributeType.EXCEPTIONS,
     AttributeType.CONSTANT_VALUE,
-    AttributeType.DEPRECATED,
+    AttributeType.MODULE,
+    AttributeType.RUNTIME_VISIBLE_ANNOTATIONS,
+    AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS,
+    AttributeType.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS,
+    AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS,
+    AttributeType.ANNOTATION_DEFAULT,
 ]);
 const disassembleAttrs = (attrib: Attributable): string => {
     let result = "";
@@ -510,10 +559,87 @@ const disassembleAttrs = (attrib: Attributable): string => {
     return result;
 };
 
-const disassembleAnnos = (attrib: Attributable, refHolder: ReferenceHolder): string => {
+const disassembleElemValue = (value: ElementValue, pool: Pool, refHolder: ReferenceHolder): string => {
+    switch (value.tag) {
+        case ElementTag.BYTE:
+        case ElementTag.CHAR:
+        case ElementTag.DOUBLE:
+        case ElementTag.FLOAT:
+        case ElementTag.INT:
+        case ElementTag.LONG:
+        case ElementTag.SHORT:
+            return formatEntry((value as ConstElementValue).valueEntry, pool);
+        case ElementTag.STRING:
+            return `"${escapeString(formatEntry((value as ConstElementValue).valueEntry, pool))}"`;
+        case ElementTag.BOOLEAN:
+            return ((value as ConstElementValue).valueEntry as NumberEntry).value !== 0 ? "true" : "false";
+        case ElementTag.CLASS:
+            return `${refHolder.name(((value as ConstElementValue).valueEntry as ClassEntry).nameEntry.string)}.class`;
+        case ElementTag.ENUM: {
+            const enumValue = value as EnumElementValue;
+            return `${formatDesc(enumValue.typeNameEntry.string, refHolder)}.${escapeLiteral(enumValue.constNameEntry.string)}`;
+        }
+        case ElementTag.ANNOTATION:
+            return disassembleAnno((value as AnnotationElementValue).annotation, pool, refHolder);
+        case ElementTag.ARRAY: {
+            const arrayValues = (value as ArrayElementValue).values;
+            return `{ ${arrayValues.map((v) => disassembleElemValue(v, pool, refHolder)).join(", ")} }`;
+        }
+    }
+};
+
+const disassembleAnno = (anno: Annotation, pool: Pool, refHolder: ReferenceHolder): string => {
+    let result = `@${formatDesc(anno.typeEntry.string, refHolder)}`;
+    if (anno.values.length > 0) {
+        result += "(";
+        result += anno.values
+            .map((v) => `${escapeLiteral(v.nameEntry.string)} = ${disassembleElemValue(v.value, pool, refHolder)}`)
+            .join(", ");
+        result += ")";
+    }
+
+    return result;
+};
+
+const disassembleAnnos = (
+    attrib: Attributable,
+    pool: Pool,
+    refHolder: ReferenceHolder,
+    parameter: number = -1
+): string => {
     let result = "";
-    if (attrib.attrs.some((a) => a.type === AttributeType.DEPRECATED)) {
-        result += `@${refHolder.name("java/lang/Deprecated")}\n`;
+    for (const attr of attrib.attrs) {
+        if (parameter >= 0) {
+            if (
+                attr.type !== AttributeType.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS &&
+                attr.type !== AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS
+            ) {
+                continue;
+            }
+        } else {
+            if (
+                attr.type !== AttributeType.RUNTIME_VISIBLE_ANNOTATIONS &&
+                attr.type !== AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS
+            ) {
+                continue;
+            }
+        }
+
+        const invisible =
+            attr.type === AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS ||
+            attr.type === AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS;
+        const annotations =
+            parameter >= 0
+                ? ((attr as ParameterAnnotationsAttribute).parameters[parameter] ?? [])
+                : (attr as AnnotationsAttribute).annotations;
+
+        for (const anno of annotations) {
+            result += disassembleAnno(anno, pool, refHolder);
+            if (invisible) {
+                result += " /* invisible */";
+            }
+            result += parameter >= 0 ? " " : "\n";
+        }
     }
 
     return result;
@@ -602,7 +728,7 @@ const disassembleMethod0 = (
     } else {
         const isConstructor = name === "<init>";
 
-        result += disassembleAnnos(method, refHolder);
+        result += disassembleAnnos(method, node.pool, refHolder);
         result += formatMod(method.access, isConstructor ? ElementType.CONSTRUCTOR : ElementType.METHOD);
 
         const [args, returnType] = method.type.string.substring(1).split(")", 2);
@@ -620,11 +746,12 @@ const disassembleMethod0 = (
 
         result += `${escapeLiteral(name)}(`;
         result += splitDescs(args)
-            .map((desc) => {
+            .map((desc, i) => {
                 const localName = locals.find((l) => l.index === localIndex)?.nameEntry?.string || `var${localIndex}`;
                 localIndex += localSize(desc);
 
-                return `${formatDesc(desc, refHolder)} ${escapeLiteral(localName)}`;
+                const annos = disassembleAnnos(method, node.pool, refHolder, i);
+                return `${annos}${formatDesc(desc, refHolder)} ${escapeLiteral(localName)}`;
             })
             .join(", ");
         result += ")";
@@ -639,6 +766,11 @@ const disassembleMethod0 = (
                 result += " throws ";
                 result += entries.join(", ");
             }
+        }
+
+        const annoDefault = method.attrs.find((a) => a.type === AttributeType.ANNOTATION_DEFAULT);
+        if (annoDefault) {
+            result += ` default ${disassembleElemValue((annoDefault as AnnotationDefaultAttribute).defaultValue, node.pool, refHolder)}`;
         }
     }
 
@@ -668,7 +800,7 @@ const disassembleField = (node: Node, field: Member, verbose: boolean, refHolder
         result += disassembleAttrs(field);
     }
 
-    result += disassembleAnnos(field, refHolder);
+    result += disassembleAnnos(field, node.pool, refHolder);
     result += formatMod(field.access, ElementType.FIELD);
     result += `${formatDesc(field.type.string, refHolder)} ${escapeLiteral(field.name.string)}`;
 
@@ -714,11 +846,18 @@ const disassemble0 = (node: Node, indent: string, verbose: boolean, refHolder: R
         result += `// Signature: ${escapeString((signature as SignatureAttribute).signatureEntry?.string)}\n`;
     }
 
+    const moduleAttr = node.attrs.find((a) => a.type === AttributeType.MODULE) as ModuleAttribute;
+    if (moduleAttr) {
+        result += `// Module name: ${escapeLiteral(moduleAttr.moduleNameEntry.nameEntry.string.replaceAll(".", "/")).replaceAll("/", ".")}\n`;
+        result += `// Module flags: ${formatMod(moduleAttr.moduleFlags, ElementType.MODULE)}(${moduleAttr.moduleFlags})\n`;
+        result += `// Module version: ${escapeString(moduleAttr.moduleVersionEntry?.string) || "N/A"}\n`;
+    }
+
     if (verbose) {
         result += disassembleAttrs(node);
     }
 
-    result += disassembleAnnos(node, refHolder);
+    result += disassembleAnnos(node, node.pool, refHolder);
     result += formatMod(
         node.access,
         nodeType === NodeType.CLASS || nodeType === NodeType.ENUM ? ElementType.CLASS : ElementType.INTERFACE
@@ -743,6 +882,33 @@ const disassemble0 = (node: Node, indent: string, verbose: boolean, refHolder: R
     for (const method of node.methods) {
         result += block(disassembleMethod0(node, method, indent, verbose, refHolder, false), indent);
     }
+
+    if (moduleAttr) {
+        for (const req of moduleAttr.requires) {
+            const escapedName = escapeLiteral(req.entry.nameEntry.string.replaceAll(".", "/"));
+            result += block(
+                `requires ${formatMod(req.flags, ElementType.MODULE_REQUIRES)}${escapedName.replaceAll("/", ".")} /* version: ${escapeString(req.versionEntry?.string) || "N/A"} */;\n`,
+                indent
+            );
+        }
+        for (const exp of moduleAttr.exports) {
+            const escapedName = escapeLiteral(exp.entry.nameEntry.string);
+            result += block(
+                `exports ${formatMod(exp.flags, ElementType.MODULE_EXPORTS)}${escapedName.replaceAll("/", ".")}${exp.to.length > 0 ? ` to ${exp.to.map((m) => escapeLiteral(m.entry.nameEntry.string)).join(", ")}` : ""};\n`,
+                indent
+            );
+        }
+        for (const use of moduleAttr.uses) {
+            result += block(`uses ${refHolder.name(use.entry.nameEntry.string)};\n`, indent);
+        }
+        for (const prov of moduleAttr.provides) {
+            result += block(
+                `provides ${refHolder.name(prov.entry.nameEntry.string)} with ${prov.with.map((m) => refHolder.name(m.entry.nameEntry.string)).join(", ")};\n`,
+                indent
+            );
+        }
+    }
+
     result += "}";
 
     const refs = refHolder.refs();

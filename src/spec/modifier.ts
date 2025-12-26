@@ -1,5 +1,3 @@
-// This file was generated on 2025-09-28 19:07:18.231258. Do not edit, changes will be overwritten!
-
 /** JVM access flags. */
 export enum Modifier {
 	/**
@@ -9,6 +7,7 @@ export enum Modifier {
 	 *  - `class` - Declared public; may be accessed from outside its package.
 	 *  - `field` - Declared public; may be accessed from outside its package.
 	 *  - `method` - Declared public; may be accessed from outside its package.
+	 *  - `inner_class` - Marked or implicitly public in source.
 	 */
 	PUBLIC = 0x1,
 
@@ -18,6 +17,7 @@ export enum Modifier {
 	 * Applicable for:
 	 *  - `field` - Declared private; accessible only within the defining class and other classes belonging to the same nest (§5.4.4).
 	 *  - `method` - Declared private; accessible only within the defining class and other classes belonging to the same nest (§5.4.4).
+	 *  - `inner_class` - Marked private in source.
 	 */
 	PRIVATE = 0x2,
 
@@ -27,6 +27,7 @@ export enum Modifier {
 	 * Applicable for:
 	 *  - `field` - Declared protected; may be accessed within subclasses.
 	 *  - `method` - Declared protected; may be accessed within subclasses.
+	 *  - `inner_class` - Marked protected in source.
 	 */
 	PROTECTED = 0x4,
 
@@ -36,6 +37,7 @@ export enum Modifier {
 	 * Applicable for:
 	 *  - `field` - Declared static.
 	 *  - `method` - Declared static.
+	 *  - `inner_class` - Marked or implicitly static in source.
 	 */
 	STATIC = 0x8,
 
@@ -46,8 +48,25 @@ export enum Modifier {
 	 *  - `class` - Declared final; no subclasses allowed.
 	 *  - `field` - Declared final; never directly assigned to after object construction (JLS §17.5).
 	 *  - `method` - Declared final; must not be overridden (§5.4.5).
+	 *  - `inner_class` - Marked or implicitly final in source.
 	 */
 	FINAL = 0x10,
+
+	/**
+	 * `ACC_OPEN` access flag, integer value `32`.
+	 *
+	 * Applicable for:
+	 *  - `module` - Indicates that this module is open.
+	 */
+	OPEN = 0x20,
+
+	/**
+	 * `ACC_TRANSITIVE` access flag, integer value `32`.
+	 *
+	 * Applicable for:
+	 *  - `module` - Indicates that any module which depends on the current module, implicitly declares a dependence on the module indicated by this entry.
+	 */
+	TRANSITIVE = 0x20,
 
 	/**
 	 * `ACC_SUPER` access flag, integer value `32`.
@@ -64,6 +83,14 @@ export enum Modifier {
 	 *  - `method` - Declared synchronized; invocation is wrapped by a monitor use.
 	 */
 	SYNCHRONIZED = 0x20,
+
+	/**
+	 * `ACC_STATIC_PHASE` access flag, integer value `64`.
+	 *
+	 * Applicable for:
+	 *  - `module` - Indicates that this dependence is mandatory in the static phase, i.e., at compile time, but is optional in the dynamic phase, i.e., at run time.
+	 */
+	STATIC_PHASE = 0x40,
 
 	/**
 	 * `ACC_VOLATILE` access flag, integer value `64`.
@@ -110,6 +137,7 @@ export enum Modifier {
 	 *
 	 * Applicable for:
 	 *  - `class` - Is an interface, not a class.
+	 *  - `inner_class` - Was an interface in source.
 	 */
 	INTERFACE = 0x200,
 
@@ -119,6 +147,7 @@ export enum Modifier {
 	 * Applicable for:
 	 *  - `class` - Declared abstract; must not be instantiated.
 	 *  - `method` - Declared abstract; no implementation is provided.
+	 *  - `inner_class` - Marked or implicitly abstract in source.
 	 */
 	ABSTRACT = 0x400,
 
@@ -137,6 +166,7 @@ export enum Modifier {
 	 *  - `class` - Declared synthetic; not present in the source code.
 	 *  - `field` - Declared synthetic; not present in the source code.
 	 *  - `method` - Declared synthetic; not present in the source code.
+	 *  - `inner_class` - Declared synthetic; not present in the source code.
 	 */
 	SYNTHETIC = 0x1000,
 
@@ -145,6 +175,7 @@ export enum Modifier {
 	 *
 	 * Applicable for:
 	 *  - `class` - Declared as an annotation interface.
+	 *  - `inner_class` - Declared as an annotation interface.
 	 */
 	ANNOTATION = 0x2000,
 
@@ -154,8 +185,18 @@ export enum Modifier {
 	 * Applicable for:
 	 *  - `class` - Declared as an enum class.
 	 *  - `field` - Declared as an element of an enum class.
+	 *  - `inner_class` - Declared as an enum class.
 	 */
 	ENUM = 0x4000,
+
+	/**
+	 * `ACC_MANDATED` access flag, integer value `32768`.
+	 *
+	 * Applicable for:
+	 *  - `parameter` - Indicates that the formal parameter was implicitly declared in source code, according to the specification of the language in which the source code was written (JLS §13.1). (The formal parameter is mandated by a language specification, so all compilers for the language must emit it.)
+	 *  - `module` - Indicates that this module was implicitly declared.
+	 */
+	MANDATED = 0x8000,
 
 	/**
 	 * `ACC_MODULE` access flag, integer value `32768`.

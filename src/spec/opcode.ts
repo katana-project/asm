@@ -1,5 +1,3 @@
-// This file was generated on 2025-09-28 19:07:18.231258. Do not edit, changes will be overwritten!
-
 /** JVM opcodes. */
 export enum Opcode {
 	/**

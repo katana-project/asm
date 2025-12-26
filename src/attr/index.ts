@@ -3,6 +3,25 @@ import type { Buffer } from "../buffer";
 import type { Pool, UTF8Entry } from "../pool";
 import { AttributeType } from "../spec";
 import {
+    type Annotation,
+    type AnnotationDefaultAttribute,
+    type AnnotationElementValue,
+    type AnnotationsAttribute,
+    type ArrayElementValue,
+    type ClassElementValue,
+    type ConstElementValue,
+    type ElementValue,
+    type ElementValuePair,
+    type EnumElementValue,
+    type ParameterAnnotationsAttribute,
+    readAnnotationDefault,
+    readAnnotations,
+    readParameterAnnotations,
+    writeAnnotationDefault,
+    writeAnnotations,
+    writeParameterAnnotations,
+} from "./annotation";
+import {
     type BootstrapMethod,
     type BootstrapMethodArgument,
     type BootstrapMethodsAttribute,
@@ -33,11 +52,18 @@ import {
     writeMethodParameters,
 } from "./method_params";
 import {
+    type ModuleAttribute,
+    type ModuleExportsOpens,
     type ModuleMainClassAttribute,
     type ModulePackage,
     type ModulePackagesAttribute,
+    type ModuleProvides,
+    type ModuleRelation,
+    type ModuleRequires,
+    readModule,
     readModuleMainClass,
     readModulePackages,
+    writeModule,
     writeModuleMainClass,
     writeModulePackages,
 } from "./module";
@@ -141,11 +167,25 @@ const readSingle = (buffer: Buffer, pool: Pool, flags: number): Attribute => {
                 case AttributeType.METHOD_PARAMETERS:
                     attr = readMethodParameters(attr, pool);
                     break;
+                case AttributeType.MODULE:
+                    attr = readModule(attr, pool);
+                    break;
                 case AttributeType.MODULE_MAIN_CLASS:
                     attr = readModuleMainClass(attr, pool);
                     break;
                 case AttributeType.MODULE_PACKAGES:
                     attr = readModulePackages(attr, pool);
+                    break;
+                case AttributeType.RUNTIME_VISIBLE_ANNOTATIONS:
+                case AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS:
+                    attr = readAnnotations(attr, pool);
+                    break;
+                case AttributeType.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS:
+                case AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS:
+                    attr = readParameterAnnotations(attr, pool);
+                    break;
+                case AttributeType.ANNOTATION_DEFAULT:
+                    attr = readAnnotationDefault(attr, pool);
                     break;
                 case AttributeType.DEPRECATED:
                 case AttributeType.SYNTHETIC:
@@ -236,11 +276,25 @@ const writeSingle = (buffer: Buffer, attr: Attribute) => {
             case AttributeType.METHOD_PARAMETERS:
                 attr.data = writeMethodParameters(attr as MethodParametersAttribute);
                 break;
+            case AttributeType.MODULE:
+                attr.data = writeModule(attr as ModuleAttribute);
+                break;
             case AttributeType.MODULE_MAIN_CLASS:
                 attr.data = writeModuleMainClass(attr as ModuleMainClassAttribute);
                 break;
             case AttributeType.MODULE_PACKAGES:
                 attr.data = writeModulePackages(attr as ModulePackagesAttribute);
+                break;
+            case AttributeType.RUNTIME_VISIBLE_ANNOTATIONS:
+            case AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS:
+                attr.data = writeAnnotations(attr as AnnotationsAttribute);
+                break;
+            case AttributeType.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS:
+            case AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS:
+                attr.data = writeParameterAnnotations(attr as ParameterAnnotationsAttribute);
+                break;
+            case AttributeType.ANNOTATION_DEFAULT:
+                attr.data = writeAnnotationDefault(attr as AnnotationDefaultAttribute);
                 break;
             case AttributeType.DEPRECATED:
             case AttributeType.SYNTHETIC:
@@ -265,12 +319,22 @@ export const writeAttrs = (buffer: Buffer, attrs: Attribute[]) => {
 };
 
 export {
+    Annotation,
+    AnnotationDefaultAttribute,
+    AnnotationElementValue,
+    AnnotationsAttribute,
+    ArrayElementValue,
     BootstrapMethod,
     BootstrapMethodArgument,
     BootstrapMethodsAttribute,
+    ClassElementValue,
     CodeAttribute,
     ConstantValueAttribute,
+    ConstElementValue,
+    ElementValue,
+    ElementValuePair,
     EnclosingMethodAttribute,
+    EnumElementValue,
     ExceptionEntry,
     ExceptionsAttribute,
     ExceptionTableEntry,
@@ -282,12 +346,18 @@ export {
     LocalVariableTableAttribute,
     MethodParameter,
     MethodParametersAttribute,
+    ModuleAttribute,
+    ModuleExportsOpens,
     ModuleMainClassAttribute,
     ModulePackage,
     ModulePackagesAttribute,
+    ModuleProvides,
+    ModuleRelation,
+    ModuleRequires,
     NestHostAttribute,
     NestMember,
     NestMembersAttribute,
+    ParameterAnnotationsAttribute,
     PermittedSubclass,
     PermittedSubclassesAttribute,
     RecordAttribute,

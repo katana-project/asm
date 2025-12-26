@@ -12,16 +12,16 @@
 - [x] LocalVariableTable
 - [x] LocalVariableTypeTable
 - [x] Deprecated
-- [ ] RuntimeVisibleAnnotations
-- [ ] RuntimeInvisibleAnnotations
-- [ ] RuntimeVisibleParameterAnnotations
-- [ ] RuntimeInvisibleParameterAnnotations
+- [x] RuntimeVisibleAnnotations
+- [x] RuntimeInvisibleAnnotations
+- [x] RuntimeVisibleParameterAnnotations
+- [x] RuntimeInvisibleParameterAnnotations
 - [ ] RuntimeVisibleTypeAnnotations
 - [ ] RuntimeInvisibleTypeAnnotations
-- [ ] AnnotationDefault
+- [x] AnnotationDefault
 - [x] BootstrapMethods
 - [x] MethodParameters
-- [ ] Module
+- [x] Module
 - [x] ModulePackages
 - [x] ModuleMainClass
 - [x] NestHost

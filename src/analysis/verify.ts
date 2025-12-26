@@ -1,19 +1,30 @@
 import type { DirtyMarkable, Node } from "../";
-import type {
+import {
+    Annotation,
+    AnnotationDefaultAttribute,
+    AnnotationElementValue,
+    AnnotationsAttribute,
+    ArrayElementValue,
     Attributable,
     Attribute,
     BootstrapMethodsAttribute,
+    ClassElementValue,
     CodeAttribute,
     ConstantValueAttribute,
+    ConstElementValue,
+    ElementValue,
     EnclosingMethodAttribute,
+    EnumElementValue,
     ExceptionsAttribute,
     InnerClassesAttribute,
     LocalVariableTableAttribute,
     MethodParametersAttribute,
+    ModuleAttribute,
     ModuleMainClassAttribute,
     ModulePackagesAttribute,
     NestHostAttribute,
     NestMembersAttribute,
+    ParameterAnnotationsAttribute,
     PermittedSubclassesAttribute,
     RecordAttribute,
     SignatureAttribute,
@@ -21,7 +32,7 @@ import type {
 } from "../attr";
 import type { ConstantInstruction } from "../insn";
 import type { Pool } from "../pool";
-import { AttributeType, ConstantType, Modifier, Opcode } from "../spec";
+import { AttributeType, ConstantType, ElementTag, Modifier, Opcode } from "../spec";
 
 const enum AttributeContext {
     NONE = 0,
@@ -78,6 +89,94 @@ const getAllowedContext = (attr: Attribute): AttributeContext => {
         AttributeContext.RECORD_COMPONENT |
         AttributeContext.ATTRIBUTE
     );
+};
+
+const checkElementValuePoolAccess = (value: ElementValue): boolean => {
+    switch (value.tag) {
+        case ElementTag.BYTE:
+        case ElementTag.CHAR:
+        case ElementTag.INT:
+        case ElementTag.LONG:
+        case ElementTag.SHORT:
+        case ElementTag.BOOLEAN: {
+            const constValue = value as ConstElementValue;
+            if (constValue.valueEntry?.type !== ConstantType.INTEGER) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.FLOAT: {
+            const constValue = value as ConstElementValue;
+            if (constValue.valueEntry?.type !== ConstantType.FLOAT) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.DOUBLE: {
+            const constValue = value as ConstElementValue;
+            if (constValue.valueEntry?.type !== ConstantType.DOUBLE) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.STRING: {
+            const constValue = value as ConstElementValue;
+            if (constValue.valueEntry?.type !== ConstantType.UTF8) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.ENUM: {
+            const enumValue = value as EnumElementValue;
+            if (
+                enumValue.typeNameEntry?.type !== ConstantType.UTF8 ||
+                enumValue.constNameEntry?.type !== ConstantType.UTF8
+            ) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.CLASS: {
+            const classValue = value as ClassElementValue;
+            if (classValue.classInfoEntry?.type !== ConstantType.UTF8) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.ANNOTATION: {
+            const annotationValue = value as AnnotationElementValue;
+            if (!checkAnnotationPoolAccess(annotationValue.annotation)) {
+                return false;
+            }
+            break;
+        }
+        case ElementTag.ARRAY: {
+            const arrayValue = value as ArrayElementValue;
+            for (const ev of arrayValue.values) {
+                if (!checkElementValuePoolAccess(ev)) {
+                    return false;
+                }
+            }
+            break;
+        }
+    }
+
+    return true;
+};
+
+const checkAnnotationPoolAccess = (annotation: Annotation): boolean => {
+    if (annotation.typeEntry?.type !== ConstantType.UTF8) {
+        return false;
+    }
+
+    for (const pair of annotation.values) {
+        if (pair.nameEntry?.type !== ConstantType.UTF8) {
+            return false;
+        }
+        if (!checkElementValuePoolAccess(pair.value)) {
+            return false;
+        }
+    }
 };
 
 const checkPoolAccess = (attr: Attribute, pool: Pool): boolean => {
@@ -146,40 +245,58 @@ const checkPoolAccess = (attr: Attribute, pool: Pool): boolean => {
             return (attr as MethodParametersAttribute).parameters.every(
                 (p) => p.nameIndex === 0 || p.nameEntry?.type === ConstantType.UTF8
             );
+        case AttributeType.MODULE:
+            const modAttr = attr as ModuleAttribute;
+            return (
+                modAttr.moduleNameEntry?.type === ConstantType.MODULE &&
+                (modAttr.moduleVersionIndex === 0 || modAttr.moduleVersionEntry?.type === ConstantType.UTF8) &&
+                modAttr.requires.every(
+                    (r) =>
+                        r.entry?.type === ConstantType.MODULE &&
+                        (r.versionIndex === 0 || r.versionEntry?.type === ConstantType.UTF8)
+                ) &&
+                modAttr.exports.every(
+                    (e) =>
+                        e.entry?.type === ConstantType.PACKAGE &&
+                        e.to.every((to) => to.entry?.type === ConstantType.MODULE)
+                ) &&
+                modAttr.opens.every(
+                    (o) =>
+                        o.entry?.type === ConstantType.PACKAGE &&
+                        o.to.every((to) => to.entry?.type === ConstantType.MODULE)
+                ) &&
+                modAttr.uses.every((u) => u.entry?.type === ConstantType.CLASS) &&
+                modAttr.provides.every(
+                    (p) =>
+                        p.entry?.type === ConstantType.CLASS &&
+                        p.with.every((w) => w.entry?.type === ConstantType.CLASS)
+                )
+            );
         case AttributeType.MODULE_MAIN_CLASS:
             return (attr as ModuleMainClassAttribute).mainClassEntry?.type === ConstantType.CLASS;
         case AttributeType.MODULE_PACKAGES:
             return (attr as ModulePackagesAttribute).packages.every((p) => p.entry?.type === ConstantType.PACKAGE);
+        case AttributeType.RUNTIME_VISIBLE_ANNOTATIONS:
+        case AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS:
+            return (attr as AnnotationsAttribute).annotations.every(checkAnnotationPoolAccess);
+        case AttributeType.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS:
+        case AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS:
+            return (attr as ParameterAnnotationsAttribute).parameters.every((p) => p.every(checkAnnotationPoolAccess));
+        case AttributeType.ANNOTATION_DEFAULT:
+            return checkElementValuePoolAccess((attr as AnnotationDefaultAttribute).defaultValue);
     }
 
     return true;
 };
 
 // attribute types that we can parse
-// TODO: check against AttributeType after we can parse everything
-const SUPPORTED_TYPES = new Set<string>([
-    AttributeType.CODE,
-    AttributeType.SOURCE_FILE,
-    AttributeType.SIGNATURE,
-    AttributeType.LOCAL_VARIABLE_TABLE,
-    AttributeType.LOCAL_VARIABLE_TYPE_TABLE,
-    AttributeType.EXCEPTIONS,
-    AttributeType.CONSTANT_VALUE,
-    AttributeType.BOOTSTRAP_METHODS,
-    AttributeType.RECORD,
-    AttributeType.PERMITTED_SUBCLASSES,
-    AttributeType.NEST_HOST,
-    AttributeType.NEST_MEMBERS,
-    AttributeType.INNER_CLASSES,
-    AttributeType.ENCLOSING_METHOD,
-    AttributeType.DEPRECATED,
-    AttributeType.SYNTHETIC,
-    AttributeType.SOURCE_DEBUG_EXTENSION,
-    AttributeType.LINE_NUMBER_TABLE,
-    AttributeType.METHOD_PARAMETERS,
-    AttributeType.MODULE_PACKAGES,
-    AttributeType.MODULE_MAIN_CLASS,
-]);
+const SUPPORTED_TYPES = new Set<string>(Object.values(AttributeType));
+
+// TODO: remove after we can parse everything
+SUPPORTED_TYPES.delete(AttributeType.STACK_MAP_TABLE);
+SUPPORTED_TYPES.delete(AttributeType.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+SUPPORTED_TYPES.delete(AttributeType.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+
 const checkSingle = (attr: Attribute, pool: Pool, ctx: AttributeContext): boolean => {
     if ((getAllowedContext(attr) & ctx) === 0) {
         // attribute not allowed in context
