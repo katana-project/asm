@@ -1,19 +1,30 @@
 import type { Member, Node } from "../";
 import type {
+    Annotation,
+    AnnotationElementValue,
+    AnnotationsAttribute,
+    ArrayElementValue,
     Attribute,
     BootstrapMethod,
     BootstrapMethodsAttribute,
+    ClassElementValue,
     CodeAttribute,
+    ElementValue,
     EnclosingMethodAttribute,
+    EnumElementValue,
     ExceptionsAttribute,
     InnerClassesAttribute,
     LocalVariableTableAttribute,
+    ModuleAttribute,
+    ModuleMainClassAttribute,
     NestHostAttribute,
     NestMembersAttribute,
+    ParameterAnnotationsAttribute,
     PermittedSubclassesAttribute,
     RecordAttribute,
     SignatureAttribute,
 } from "../attr";
+import { typeOfElementValue } from "../attr/annotation";
 import {
     ArrayInstruction,
     ConstantInstruction,
@@ -33,7 +44,7 @@ import type {
     RefEntry,
     UTF8Entry,
 } from "../pool";
-import { AttributeType, ConstantType, HandleKind, Opcode } from "../spec";
+import { AttributeType, ConstantType, ElementTag, HandleKind, Opcode } from "../spec";
 import { type Type, parseType } from "../type";
 
 export interface Remapper {
@@ -502,6 +513,107 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
     return changed;
 };
 
+const remapElementValue = (context: RemapContext, value: ElementValue): boolean => {
+    const { pool, remapper } = context;
+    let changed = false;
+
+    switch (value.tag) {
+        case ElementTag.CLASS: {
+            const classValue = value as ClassElementValue;
+            const classInfoEntry = classValue.classInfoEntry;
+            const newEntry = remapUtf8Entry(context, classInfoEntry);
+            if (newEntry !== classInfoEntry) {
+                classValue.classInfoEntry = newEntry;
+                changed = true;
+            }
+            break;
+        }
+
+        case ElementTag.ANNOTATION: {
+            const annotationValue = value as AnnotationElementValue;
+            if (remapAnnotation(context, annotationValue.annotation)) {
+                changed = true;
+            }
+            break;
+        }
+
+        case ElementTag.ARRAY: {
+            const arrayValue = value as ArrayElementValue;
+            for (const elem of arrayValue.values) {
+                if (remapElementValue(context, elem)) {
+                    changed = true;
+                }
+            }
+            break;
+        }
+
+        case ElementTag.ENUM: {
+            const enumValue = value as EnumElementValue;
+            const typeNameEntry = enumValue.typeNameEntry;
+            const parsedTypeName = parseType(typeNameEntry.string);
+            const newTypeNameEntry = remapUtf8Entry(context, typeNameEntry);
+            if (newTypeNameEntry !== typeNameEntry) {
+                enumValue.typeNameEntry = newTypeNameEntry;
+                changed = true;
+            }
+
+            const constNameEntry = enumValue.constNameEntry;
+            const newConstName = remapper.ref(parsedTypeName, constNameEntry.string, parsedTypeName);
+            if (newConstName !== constNameEntry.string) {
+                const newConstNameEntry: UTF8Entry = {
+                    ...constNameEntry,
+                    index: pool.length,
+                    string: newConstName,
+                    dirty: true,
+                };
+                pool.push(newConstNameEntry);
+                enumValue.constNameEntry = newConstNameEntry;
+                changed = true;
+            }
+            break;
+        }
+    }
+
+    return changed;
+};
+
+const remapAnnotation = (context: RemapContext, annotation: Annotation): boolean => {
+    const { pool, remapper } = context;
+    let changed = false;
+
+    const typeEntry = annotation.typeEntry;
+    const parsedType = parseType(typeEntry.string);
+    const newTypeEntry = remapUtf8Entry(context, typeEntry);
+    if (newTypeEntry !== typeEntry) {
+        annotation.typeEntry = newTypeEntry;
+        changed = true;
+    }
+
+    for (const pair of annotation.values) {
+        const nameEntry = pair.nameEntry;
+        const valueType = typeOfElementValue(pair.value);
+        const newName = remapper.ref(parsedType, nameEntry.string, valueType);
+        if (newName !== nameEntry.string) {
+            const newNameEntry: UTF8Entry = {
+                ...nameEntry,
+                index: pool.length,
+                string: newName,
+                dirty: true,
+            };
+
+            pool.push(newNameEntry);
+            pair.nameEntry = newNameEntry;
+            changed = true;
+        }
+
+        if (remapElementValue(context, pair.value)) {
+            changed = true;
+        }
+    }
+
+    return changed;
+};
+
 const remapAttribute = (context: RemapContext, owner: Type, attr: Attribute): void => {
     const { pool, remapper } = context;
 
@@ -700,6 +812,67 @@ const remapAttribute = (context: RemapContext, owner: Type, attr: Attribute): vo
                 remapAttribute(context, owner, nestedAttr);
                 if (nestedAttr.dirty) {
                     changed = true;
+                }
+            }
+            break;
+        }
+
+        case AttributeType.MODULE: {
+            const modAttr = attr as ModuleAttribute;
+            for (const use of modAttr.uses) {
+                const newEntry = remapClassEntry(context, use.entry);
+                if (newEntry !== use.entry) {
+                    use.entry = newEntry;
+                    changed = true;
+                }
+            }
+            for (const provide of modAttr.provides) {
+                const newEntry = remapClassEntry(context, provide.entry);
+                if (newEntry !== provide.entry) {
+                    provide.entry = newEntry;
+                    changed = true;
+                }
+
+                for (const withElement of provide.with) {
+                    const newWithEntry = remapClassEntry(context, withElement.entry);
+                    if (newWithEntry !== withElement.entry) {
+                        withElement.entry = newWithEntry;
+                        changed = true;
+                    }
+                }
+            }
+            break;
+        }
+
+        case AttributeType.MODULE_MAIN_CLASS: {
+            const mmcAttr = attr as ModuleMainClassAttribute;
+            const newEntry = remapClassEntry(context, mmcAttr.mainClassEntry!);
+            if (newEntry !== mmcAttr.mainClassEntry) {
+                mmcAttr.mainClassEntry = newEntry;
+                changed = true;
+            }
+            break;
+        }
+
+        case AttributeType.RUNTIME_VISIBLE_ANNOTATIONS:
+        case AttributeType.RUNTIME_INVISIBLE_ANNOTATIONS: {
+            const annAttr = attr as AnnotationsAttribute;
+            for (const annotation of annAttr.annotations) {
+                if (remapAnnotation(context, annotation)) {
+                    changed = true;
+                }
+            }
+            break;
+        }
+
+        case AttributeType.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS:
+        case AttributeType.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS: {
+            const paAttr = attr as ParameterAnnotationsAttribute;
+            for (const parameter of paAttr.parameters) {
+                for (const annotation of parameter) {
+                    if (remapAnnotation(context, annotation)) {
+                        changed = true;
+                    }
                 }
             }
             break;

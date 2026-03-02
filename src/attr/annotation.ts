@@ -1,6 +1,7 @@
-import { Buffer, create, wrap } from "../buffer";
+import { type Buffer, create, wrap } from "../buffer";
 import type { Entry, Pool, UTF8Entry } from "../pool";
 import { AttributeType, ElementTag } from "../spec";
+import { objectType, parseType, PrimitiveType, type Type } from "../type";
 import type { Attribute } from "./";
 
 export interface ElementValue {
@@ -326,4 +327,46 @@ export const writeAnnotationDefault = (attr: AnnotationDefaultAttribute): Uint8A
 
     writeElementValue(buffer, attr.defaultValue);
     return buffer.arrayView;
+};
+
+export const typeOfElementValue = (value: ElementValue): Type => {
+    switch (value.tag) {
+        case ElementTag.BYTE:
+            return PrimitiveType.BYTE;
+        case ElementTag.CHAR:
+            return PrimitiveType.CHAR;
+        case ElementTag.DOUBLE:
+            return PrimitiveType.DOUBLE;
+        case ElementTag.FLOAT:
+            return PrimitiveType.FLOAT;
+        case ElementTag.INT:
+            return PrimitiveType.INT;
+        case ElementTag.LONG:
+            return PrimitiveType.LONG;
+        case ElementTag.SHORT:
+            return PrimitiveType.SHORT;
+        case ElementTag.BOOLEAN:
+            return PrimitiveType.BOOLEAN;
+        case ElementTag.STRING:
+            return objectType("Ljava/lang/String;");
+        case ElementTag.ENUM:
+            return parseType((value as EnumElementValue).typeNameEntry.string);
+        case ElementTag.CLASS:
+            return parseType((value as ClassElementValue).classInfoEntry.string);
+        case ElementTag.ANNOTATION:
+            return parseType((value as AnnotationElementValue).annotation.typeEntry.string);
+        case ElementTag.ARRAY:
+            const elemTypes = (value as ArrayElementValue).values.map(typeOfElementValue);
+            const elemType = elemTypes.reduce((common, type) => {
+                if (common === null) {
+                    return type;
+                }
+                if (type.value === common.value) {
+                    return common;
+                }
+                // fall back to Object if there are different types in the array
+                return objectType("Ljava/lang/Object;");
+            }, null);
+            return parseType(`[${elemType ? elemType.value : "Ljava/lang/Object;"}`);
+    }
 };
