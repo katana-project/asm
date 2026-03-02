@@ -41,7 +41,28 @@ export interface Remapper {
     ref(owner: Type, name: string, type: Type): string;
 }
 
-const remapUtf8Entry = (pool: Pool, entry: UTF8Entry, remapper: Remapper): UTF8Entry => {
+interface RemapContext {
+    node: Node;
+    pool: Pool;
+    remapper: Remapper;
+
+    entries: Map<number, Entry>;
+}
+
+const createContext = (node: Node, remapper: Remapper): RemapContext => ({
+    node,
+    pool: node.pool,
+    remapper,
+    entries: new Map(),
+});
+
+const remapUtf8Entry = ({ pool, remapper, entries }: RemapContext, entry: UTF8Entry): UTF8Entry => {
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as UTF8Entry;
+    }
+
     const parsedType = parseType(entry.string);
     const remappedType = remapper.type(parsedType);
     if (remappedType.value !== parsedType.value) {
@@ -54,10 +75,17 @@ const remapUtf8Entry = (pool: Pool, entry: UTF8Entry, remapper: Remapper): UTF8E
         pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
-const remapClassEntry = (pool: Pool, entry: ClassEntry, remapper: Remapper): ClassEntry => {
+const remapClassEntry = ({ pool, entries, remapper }: RemapContext, entry: ClassEntry): ClassEntry => {
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as ClassEntry;
+    }
+
     let nameEntry = entry.nameEntry;
 
     const type = parseType(`L${nameEntry.string};`);
@@ -81,12 +109,20 @@ const remapClassEntry = (pool: Pool, entry: ClassEntry, remapper: Remapper): Cla
         pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
-const remapRefEntry = (pool: Pool, entry: RefEntry, remapper: Remapper): RefEntry => {
+const remapRefEntry = (context: RemapContext, entry: RefEntry): RefEntry => {
+    const { pool, remapper, entries } = context;
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as RefEntry;
+    }
+
     const classEntry = entry.refEntry;
-    const nameTypeEntry = entry.nameTypeEntry;
+    let nameTypeEntry = entry.nameTypeEntry;
     const nameEntry = nameTypeEntry.nameEntry;
     const typeEntry = nameTypeEntry.typeEntry;
 
@@ -117,9 +153,9 @@ const remapRefEntry = (pool: Pool, entry: RefEntry, remapper: Remapper): RefEntr
         pool.push(newTypeEntry);
     }
 
-    const newClassEntry = remapClassEntry(pool, classEntry, remapper);
+    const newClassEntry = remapClassEntry(context, classEntry);
     if (newClassEntry !== classEntry || newNameEntry !== nameEntry || newTypeEntry !== typeEntry) {
-        const newNameTypeEntry: NameTypeEntry = {
+        nameTypeEntry = {
             ...nameTypeEntry,
             index: pool.length,
             name: newNameEntry.index,
@@ -127,25 +163,34 @@ const remapRefEntry = (pool: Pool, entry: RefEntry, remapper: Remapper): RefEntr
             type_: newTypeEntry.index,
             typeEntry: newTypeEntry,
         };
-        pool.push(newNameTypeEntry);
+        pool.push(nameTypeEntry);
 
-        const newRefEntry: RefEntry = {
+        entry = {
             ...entry,
             index: pool.length,
             ref: newClassEntry.index,
             refEntry: newClassEntry,
-            nameType: newNameTypeEntry.index,
-            nameTypeEntry: newNameTypeEntry,
+            nameType: nameTypeEntry.index,
+            nameTypeEntry: nameTypeEntry,
         };
-        pool.push(newRefEntry);
-
-        return newRefEntry;
+        pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
-const remapNameTypeEntry = (pool: Pool, entry: NameTypeEntry, remapper: Remapper, ownerType?: Type): NameTypeEntry => {
+const remapNameTypeEntry = (
+    { pool, remapper, entries }: RemapContext,
+    entry: NameTypeEntry,
+    ownerType?: Type
+): NameTypeEntry => {
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as NameTypeEntry;
+    }
+
     const nameEntry = entry.nameEntry;
     const typeEntry = entry.typeEntry;
 
@@ -188,12 +233,20 @@ const remapNameTypeEntry = (pool: Pool, entry: NameTypeEntry, remapper: Remapper
         pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
-const remapHandleEntry = (pool: Pool, entry: HandleEntry, remapper: Remapper): HandleEntry => {
+const remapHandleEntry = (context: RemapContext, entry: HandleEntry): HandleEntry => {
+    const { pool, entries } = context;
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as HandleEntry;
+    }
+
     const refEntry = entry.refEntry;
-    const newRefEntry = remapRefEntry(pool, refEntry, remapper);
+    const newRefEntry = remapRefEntry(context, refEntry);
     if (newRefEntry !== refEntry) {
         entry = {
             ...entry,
@@ -204,6 +257,7 @@ const remapHandleEntry = (pool: Pool, entry: HandleEntry, remapper: Remapper): H
         pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
@@ -260,7 +314,14 @@ const getLambdaImplementedMethod = (
     };
 };
 
-const remapDynamicEntry = (node: Node, entry: DynamicEntry, remapper: Remapper): DynamicEntry => {
+const remapDynamicEntry = (context: RemapContext, entry: DynamicEntry): DynamicEntry => {
+    const { node, pool, remapper, entries } = context;
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as DynamicEntry;
+    }
+
     const nameTypeEntry = entry.nameTypeEntry;
     let newNameTypeEntry: NameTypeEntry | null = null;
 
@@ -273,51 +334,55 @@ const remapDynamicEntry = (node: Node, entry: DynamicEntry, remapper: Remapper):
                 const remappedName = remapper.ref(lambdaMethod.owner, lambdaMethod.name, lambdaMethod.type);
                 if (remappedName !== lambdaMethod.name) {
                     const newNameEntry: UTF8Entry = {
-                        ...(node.pool[nameTypeEntry.name] as UTF8Entry),
-                        index: node.pool.length,
+                        ...nameTypeEntry.nameEntry,
+                        index: pool.length,
                         string: remappedName,
                         dirty: true,
                     };
-                    node.pool.push(newNameEntry);
+                    pool.push(newNameEntry);
 
-                    const newTypeEntry = remapUtf8Entry(
-                        node.pool,
-                        node.pool[nameTypeEntry.type_] as UTF8Entry,
-                        remapper
-                    );
+                    const newTypeEntry = remapUtf8Entry(context, nameTypeEntry.typeEntry);
                     newNameTypeEntry = {
                         ...nameTypeEntry,
-                        index: node.pool.length,
+                        index: pool.length,
                         name: newNameEntry.index,
                         nameEntry: newNameEntry,
                         type_: newTypeEntry.index,
                         typeEntry: newTypeEntry,
                     };
-                    node.pool.push(newNameTypeEntry);
+                    pool.push(newNameTypeEntry);
                 }
             }
         }
     }
 
     if (newNameTypeEntry === null) {
-        newNameTypeEntry = remapNameTypeEntry(node.pool, nameTypeEntry, remapper);
+        newNameTypeEntry = remapNameTypeEntry(context, nameTypeEntry);
     }
     if (newNameTypeEntry !== nameTypeEntry) {
         entry = {
             ...entry,
-            index: node.pool.length,
+            index: pool.length,
             nameType: newNameTypeEntry.index,
             nameTypeEntry: newNameTypeEntry,
         };
-        node.pool.push(entry);
+        pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
-const remapMethodTypeEntry = (pool: Pool, entry: MethodTypeEntry, remapper: Remapper): MethodTypeEntry => {
+const remapMethodTypeEntry = (context: RemapContext, entry: MethodTypeEntry): MethodTypeEntry => {
+    const { pool, entries } = context;
+    const unmappedIndex = entry.index;
+    const cached = entries.get(unmappedIndex);
+    if (cached) {
+        return cached as MethodTypeEntry;
+    }
+
     const descriptorEntry = entry.descriptorEntry;
-    const newDescriptorEntry = remapUtf8Entry(pool, descriptorEntry, remapper);
+    const newDescriptorEntry = remapUtf8Entry(context, descriptorEntry);
     if (newDescriptorEntry !== descriptorEntry) {
         entry = {
             ...entry,
@@ -328,11 +393,12 @@ const remapMethodTypeEntry = (pool: Pool, entry: MethodTypeEntry, remapper: Rema
         pool.push(entry);
     }
 
+    entries.set(unmappedIndex, entry);
     return entry;
 };
 
-const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Remapper): boolean => {
-    const { pool } = node;
+const remapInstructionReferences = (context: RemapContext, insn: Instruction): boolean => {
+    const { pool } = context;
 
     let changed = false;
     switch (insn.opcode) {
@@ -345,16 +411,16 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
             let newEntry: Entry = poolEntry;
             switch (poolEntry.type) {
                 case ConstantType.CLASS:
-                    newEntry = remapClassEntry(pool, poolEntry as ClassEntry, remapper);
+                    newEntry = remapClassEntry(context, poolEntry as ClassEntry);
                     break;
                 case ConstantType.METHOD_HANDLE:
-                    newEntry = remapHandleEntry(pool, poolEntry as HandleEntry, remapper);
+                    newEntry = remapHandleEntry(context, poolEntry as HandleEntry);
                     break;
                 case ConstantType.DYNAMIC:
-                    newEntry = remapDynamicEntry(node, poolEntry as DynamicEntry, remapper);
+                    newEntry = remapDynamicEntry(context, poolEntry as DynamicEntry);
                     break;
                 case ConstantType.METHOD_TYPE:
-                    newEntry = remapMethodTypeEntry(pool, poolEntry as MethodTypeEntry, remapper);
+                    newEntry = remapMethodTypeEntry(context, poolEntry as MethodTypeEntry);
                     break;
             }
 
@@ -372,7 +438,7 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
             const fieldInsn = insn as LoadStoreInstruction;
 
             const poolEntry = pool[fieldInsn.index] as RefEntry;
-            const newEntry = remapRefEntry(pool, poolEntry, remapper);
+            const newEntry = remapRefEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 fieldInsn.index = newEntry.index;
                 changed = true;
@@ -386,7 +452,7 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
             const invokeInsn = insn as InvokeInstruction;
 
             const poolEntry = pool[invokeInsn.ref] as RefEntry;
-            const newEntry = remapRefEntry(pool, poolEntry, remapper);
+            const newEntry = remapRefEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 invokeInsn.ref = newEntry.index;
                 changed = true;
@@ -398,7 +464,7 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
             const invokeInsn = insn as InvokeInstruction;
 
             const poolEntry = pool[invokeInsn.ref] as DynamicEntry;
-            const newEntry = remapDynamicEntry(node, poolEntry, remapper);
+            const newEntry = remapDynamicEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 invokeInsn.ref = newEntry.index;
                 changed = true;
@@ -412,7 +478,7 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
             const typeInsn = insn as TypeInstruction;
 
             const poolEntry = pool[typeInsn.index] as ClassEntry;
-            const newEntry = remapClassEntry(pool, poolEntry, remapper);
+            const newEntry = remapClassEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 typeInsn.index = newEntry.index;
                 changed = true;
@@ -425,7 +491,7 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
             const arrayInsn = insn as ArrayInstruction;
 
             const poolEntry = pool[arrayInsn.type] as ClassEntry;
-            const newEntry = remapClassEntry(pool, poolEntry, remapper);
+            const newEntry = remapClassEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 arrayInsn.type = newEntry.index;
                 changed = true;
@@ -436,14 +502,14 @@ const remapInstructionReferences = (node: Node, insn: Instruction, remapper: Rem
     return changed;
 };
 
-const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Remapper): void => {
-    const { pool } = node;
+const remapAttribute = (context: RemapContext, owner: Type, attr: Attribute): void => {
+    const { pool, remapper } = context;
 
     let changed = false;
     switch (attr.type) {
         case AttributeType.SIGNATURE: {
             const sigAttr = attr as SignatureAttribute;
-            const newEntry = remapUtf8Entry(pool, sigAttr.signatureEntry, remapper);
+            const newEntry = remapUtf8Entry(context, sigAttr.signatureEntry);
             if (newEntry !== sigAttr.signatureEntry) {
                 sigAttr.signatureEntry = newEntry;
                 changed = true;
@@ -454,7 +520,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.EXCEPTIONS: {
             const excAttr = attr as ExceptionsAttribute;
             for (const excEntry of excAttr.entries) {
-                const newEntry = remapClassEntry(pool, excEntry.entry, remapper);
+                const newEntry = remapClassEntry(context, excEntry.entry);
                 if (newEntry !== excEntry.entry) {
                     excEntry.entry = newEntry;
                     changed = true;
@@ -466,7 +532,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.INNER_CLASSES: {
             const icAttr = attr as InnerClassesAttribute;
             for (const innerClass of icAttr.classes) {
-                const newInnerEntry = remapClassEntry(pool, innerClass.innerEntry, remapper);
+                const newInnerEntry = remapClassEntry(context, innerClass.innerEntry);
                 if (newInnerEntry !== innerClass.innerEntry) {
                     innerClass.innerEntry = newInnerEntry;
                     changed = true;
@@ -491,7 +557,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
                 }
 
                 if (innerClass.outerEntry) {
-                    const newOuterEntry = remapClassEntry(pool, innerClass.outerEntry, remapper);
+                    const newOuterEntry = remapClassEntry(context, innerClass.outerEntry);
                     if (newOuterEntry !== innerClass.outerEntry) {
                         innerClass.outerEntry = newOuterEntry;
                         changed = true;
@@ -504,7 +570,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.BOOTSTRAP_METHODS: {
             const bsmAttr = attr as BootstrapMethodsAttribute;
             for (const method of bsmAttr.methods) {
-                const newEntry = remapHandleEntry(pool, method.refEntry, remapper);
+                const newEntry = remapHandleEntry(context, method.refEntry);
                 if (newEntry !== method.refEntry) {
                     method.refEntry = newEntry;
                     changed = true;
@@ -531,14 +597,14 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
                     changed = true;
                 }
 
-                const newEntry = remapUtf8Entry(pool, component.descriptorEntry, remapper);
+                const newEntry = remapUtf8Entry(context, component.descriptorEntry);
                 if (newEntry !== component.descriptorEntry) {
                     component.descriptorEntry = newEntry;
                     changed = true;
                 }
 
                 for (const compAttr of component.attrs) {
-                    remapAttribute(node, owner, compAttr, remapper);
+                    remapAttribute(context, owner, compAttr);
                     if (compAttr.dirty) {
                         changed = true;
                     }
@@ -550,7 +616,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.PERMITTED_SUBCLASSES: {
             const psAttr = attr as PermittedSubclassesAttribute;
             for (const clazz of psAttr.classes) {
-                const newEntry = remapClassEntry(pool, clazz.entry, remapper);
+                const newEntry = remapClassEntry(context, clazz.entry);
                 if (newEntry !== clazz.entry) {
                     clazz.entry = newEntry;
                     changed = true;
@@ -561,7 +627,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
 
         case AttributeType.NEST_HOST: {
             const nhAttr = attr as NestHostAttribute;
-            const newEntry = remapClassEntry(pool, nhAttr.hostClassEntry, remapper);
+            const newEntry = remapClassEntry(context, nhAttr.hostClassEntry);
             if (newEntry !== nhAttr.hostClassEntry) {
                 nhAttr.hostClassEntry = newEntry;
                 changed = true;
@@ -572,7 +638,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.NEST_MEMBERS: {
             const nmAttr = attr as NestMembersAttribute;
             for (const member of nmAttr.classes) {
-                const newEntry = remapClassEntry(pool, member.entry, remapper);
+                const newEntry = remapClassEntry(context, member.entry);
                 if (newEntry !== member.entry) {
                     member.entry = newEntry;
                     changed = true;
@@ -584,13 +650,13 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.ENCLOSING_METHOD: {
             const emAttr = attr as EnclosingMethodAttribute;
             const ownerType = parseType(`L${emAttr.classEntry.nameEntry.string};`);
-            const newMethodEntry = remapNameTypeEntry(pool, emAttr.methodEntry, remapper, ownerType);
+            const newMethodEntry = remapNameTypeEntry(context, emAttr.methodEntry, ownerType);
             if (newMethodEntry !== emAttr.methodEntry) {
                 emAttr.methodEntry = newMethodEntry;
                 changed = true;
             }
 
-            const newClassEntry = remapClassEntry(pool, emAttr.classEntry, remapper);
+            const newClassEntry = remapClassEntry(context, emAttr.classEntry);
             if (newClassEntry !== emAttr.classEntry) {
                 emAttr.classEntry = newClassEntry;
                 changed = true;
@@ -602,7 +668,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
         case AttributeType.LOCAL_VARIABLE_TYPE_TABLE: {
             const lvtAttr = attr as LocalVariableTableAttribute;
             for (const entry of lvtAttr.entries) {
-                const newEntry = remapUtf8Entry(pool, entry.descriptorEntry, remapper);
+                const newEntry = remapUtf8Entry(context, entry.descriptorEntry);
                 if (newEntry !== entry.descriptorEntry) {
                     entry.descriptorEntry = newEntry;
                     changed = true;
@@ -616,7 +682,7 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
             for (const exception of codeAttr.exceptionTable) {
                 if (exception.catchType !== 0) {
                     const classEntry = pool[exception.catchType] as ClassEntry;
-                    const newEntry = remapClassEntry(pool, classEntry, remapper);
+                    const newEntry = remapClassEntry(context, classEntry);
                     if (newEntry !== classEntry) {
                         exception.catchType = newEntry.index;
                         changed = true;
@@ -625,13 +691,13 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
             }
 
             for (const insn of codeAttr.insns) {
-                if (remapInstructionReferences(node, insn, remapper)) {
+                if (remapInstructionReferences(context, insn)) {
                     changed = true;
                 }
             }
 
             for (const nestedAttr of codeAttr.attrs) {
-                remapAttribute(node, owner, nestedAttr, remapper);
+                remapAttribute(context, owner, nestedAttr);
                 if (nestedAttr.dirty) {
                     changed = true;
                 }
@@ -645,8 +711,8 @@ const remapAttribute = (node: Node, owner: Type, attr: Attribute, remapper: Rema
     }
 };
 
-const remapMember = (node: Node, owner: Type, member: Member, remapper: Remapper) => {
-    const { pool } = node;
+const remapMember = (context: RemapContext, owner: Type, member: Member) => {
+    const { pool, remapper } = context;
 
     const memberType = parseType(member.type.string);
     const remappedName = remapper.ref(owner, member.name.string, memberType);
@@ -661,32 +727,32 @@ const remapMember = (node: Node, owner: Type, member: Member, remapper: Remapper
         member.name = newNameEntry;
     }
 
-    member.type = remapUtf8Entry(pool, member.type, remapper);
+    member.type = remapUtf8Entry(context, member.type);
     for (const attr of member.attrs) {
-        remapAttribute(node, owner, attr, remapper);
+        remapAttribute(context, owner, attr);
     }
 };
 
 // modified in-place
 export const remap = (node: Node, remapper: Remapper) => {
-    const { pool } = node;
+    const context = createContext(node, remapper);
 
     const ownerType = parseType(`L${node.thisClass.nameEntry.string};`);
-    node.thisClass = remapClassEntry(pool, node.thisClass, remapper);
+    node.thisClass = remapClassEntry(context, node.thisClass);
 
     if (node.superClass) {
-        node.superClass = remapClassEntry(pool, node.superClass, remapper);
+        node.superClass = remapClassEntry(context, node.superClass);
     }
 
     for (let i = 0; i < node.interfaces.length; i++) {
-        node.interfaces[i] = remapClassEntry(pool, node.interfaces[i], remapper);
+        node.interfaces[i] = remapClassEntry(context, node.interfaces[i]);
     }
 
     for (const member of [...node.fields, ...node.methods]) {
-        remapMember(node, ownerType, member, remapper);
+        remapMember(context, ownerType, member);
     }
 
     for (const attr of node.attrs) {
-        remapAttribute(node, ownerType, attr, remapper);
+        remapAttribute(context, ownerType, attr);
     }
 };

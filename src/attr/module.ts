@@ -92,7 +92,7 @@ export const readModule = (attr: Attribute, pool: Pool): ModuleAttribute => {
             flags,
             versionIndex,
             entry: pool[index] as ModularEntry | undefined,
-            versionEntry: versionIndex > 0 ? pool[versionIndex] as UTF8Entry | undefined : undefined,
+            versionEntry: versionIndex > 0 ? (pool[versionIndex] as UTF8Entry | undefined) : undefined,
         };
     }
 
@@ -120,7 +120,7 @@ export const readModule = (attr: Attribute, pool: Pool): ModuleAttribute => {
         moduleFlags,
         moduleVersionIndex,
         moduleNameEntry: pool[moduleNameIndex] as ModularEntry | undefined,
-        moduleVersionEntry: moduleVersionIndex > 0 ? pool[moduleVersionIndex] as UTF8Entry | undefined : undefined,
+        moduleVersionEntry: moduleVersionIndex > 0 ? (pool[moduleVersionIndex] as UTF8Entry | undefined) : undefined,
         requires,
         exports,
         opens,
