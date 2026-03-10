@@ -683,6 +683,29 @@ const remapAttribute = (context: RemapContext, owner: Type, attr: Attribute): vo
                     method.refEntry = newEntry;
                     changed = true;
                 }
+
+                for (const arg of method.args) {
+                    let newArgEntry = arg.entry;
+                    switch (arg.entry.type) {
+                        case ConstantType.CLASS:
+                            newArgEntry = remapClassEntry(context, arg.entry as ClassEntry);
+                            break;
+                        case ConstantType.METHOD_HANDLE:
+                            newArgEntry = remapHandleEntry(context, arg.entry as HandleEntry);
+                            break;
+                        case ConstantType.DYNAMIC:
+                            newArgEntry = remapDynamicEntry(context, arg.entry as DynamicEntry);
+                            break;
+                        case ConstantType.METHOD_TYPE:
+                            newArgEntry = remapMethodTypeEntry(context, arg.entry as MethodTypeEntry);
+                            break;
+                    }
+
+                    if (newArgEntry !== arg.entry) {
+                        arg.entry = newArgEntry;
+                        changed = true;
+                    }
+                }
             }
             break;
         }
