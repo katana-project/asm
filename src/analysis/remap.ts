@@ -408,10 +408,8 @@ const remapMethodTypeEntry = (context: RemapContext, entry: MethodTypeEntry): Me
     return entry;
 };
 
-const remapInstructionReferences = (context: RemapContext, insn: Instruction): boolean => {
+const remapInstructionReferences = (context: RemapContext, insn: Instruction) => {
     const { pool } = context;
-
-    let changed = false;
     switch (insn.opcode) {
         case Opcode.LDC:
         case Opcode.LDC_W:
@@ -437,7 +435,7 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
 
             if (newEntry !== poolEntry) {
                 constInsn.index = newEntry.index;
-                changed = true;
+                insn.dirty = true;
             }
             break;
         }
@@ -452,7 +450,7 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
             const newEntry = remapRefEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 fieldInsn.index = newEntry.index;
-                changed = true;
+                insn.dirty = true;
             }
             break;
         }
@@ -466,7 +464,7 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
             const newEntry = remapRefEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 invokeInsn.ref = newEntry.index;
-                changed = true;
+                insn.dirty = true;
             }
             break;
         }
@@ -478,7 +476,7 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
             const newEntry = remapDynamicEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 invokeInsn.ref = newEntry.index;
-                changed = true;
+                insn.dirty = true;
             }
             break;
         }
@@ -492,7 +490,7 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
             const newEntry = remapClassEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 typeInsn.index = newEntry.index;
-                changed = true;
+                insn.dirty = true;
             }
             break;
         }
@@ -505,12 +503,10 @@ const remapInstructionReferences = (context: RemapContext, insn: Instruction): b
             const newEntry = remapClassEntry(context, poolEntry);
             if (newEntry !== poolEntry) {
                 arrayInsn.type = newEntry.index;
-                changed = true;
+                insn.dirty = true;
             }
             break;
     }
-
-    return changed;
 };
 
 const remapElementValue = (context: RemapContext, value: ElementValue): boolean => {
@@ -803,7 +799,8 @@ const remapAttribute = (context: RemapContext, owner: Type, attr: Attribute): vo
             }
 
             for (const insn of codeAttr.insns) {
-                if (remapInstructionReferences(context, insn)) {
+                remapInstructionReferences(context, insn);
+                if (insn.dirty) {
                     changed = true;
                 }
             }
