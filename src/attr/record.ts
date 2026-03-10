@@ -23,9 +23,13 @@ export const readRecord = (attr: Attribute, pool: Pool, flags: number = 0): Reco
     const numComponents = buffer.getUint16();
     const components = new Array<RecordComponent>(numComponents);
     for (let i = 0; i < numComponents; i++) {
+        const name = buffer.getUint16();
+        const descriptor = buffer.getUint16();
         components[i] = {
-            name: buffer.getUint16(),
-            descriptor: buffer.getUint16(),
+            name,
+            nameEntry: pool[name] as UTF8Entry | undefined,
+            descriptor,
+            descriptorEntry: pool[descriptor] as UTF8Entry | undefined,
             attrs: readAttrs(buffer, pool, flags),
         };
     }
