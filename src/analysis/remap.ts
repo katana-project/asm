@@ -780,11 +780,13 @@ const remapAttribute = (context: RemapContext, owner: Type, attr: Attribute): vo
 
         case AttributeType.ENCLOSING_METHOD: {
             const emAttr = attr as EnclosingMethodAttribute;
-            const ownerType = parseType(`L${emAttr.classEntry.nameEntry.string};`);
-            const newMethodEntry = remapNameTypeEntry(context, emAttr.methodEntry, ownerType);
-            if (newMethodEntry !== emAttr.methodEntry) {
-                emAttr.methodEntry = newMethodEntry;
-                changed = true;
+            if (emAttr.methodEntry) {
+                const ownerType = parseType(`L${emAttr.classEntry.nameEntry.string};`);
+                const newMethodEntry = remapNameTypeEntry(context, emAttr.methodEntry, ownerType);
+                if (newMethodEntry !== emAttr.methodEntry) {
+                    emAttr.methodEntry = newMethodEntry;
+                    changed = true;
+                }
             }
 
             const newClassEntry = remapClassEntry(context, emAttr.classEntry);
