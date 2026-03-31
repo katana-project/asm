@@ -7,6 +7,7 @@ import {
     ArrayElementValue,
     Attributable,
     BootstrapMethodsAttribute,
+    ClassElementValue,
     CodeAttribute,
     ConstantValueAttribute,
     ConstElementValue,
@@ -573,8 +574,10 @@ const disassembleElemValue = (value: ElementValue, pool: Pool, refHolder: Refere
             return `"${escapeString(formatEntry((value as ConstElementValue).valueEntry, pool))}"`;
         case ElementTag.BOOLEAN:
             return ((value as ConstElementValue).valueEntry as NumberEntry).value !== 0 ? "true" : "false";
-        case ElementTag.CLASS:
-            return `${refHolder.name(((value as ConstElementValue).valueEntry as ClassEntry).nameEntry.string)}.class`;
+        case ElementTag.CLASS: {
+            const classInfo = (value as ClassElementValue).classInfoEntry.string;
+            return `${formatDesc(classInfo, refHolder)}.class`;
+        }
         case ElementTag.ENUM: {
             const enumValue = value as EnumElementValue;
             return `${formatDesc(enumValue.typeNameEntry.string, refHolder)}.${escapeLiteral(enumValue.constNameEntry.string)}`;

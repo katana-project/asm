@@ -231,17 +231,29 @@ export const readAnnotationDefault = (attr: Attribute, pool: Pool): AnnotationDe
 
 const writeConstElementValue = (buffer: Buffer, value: ConstElementValue) => {
     buffer.setUint8(value.tag.charCodeAt(0));
+    if (value.valueEntry) {
+        value.value = value.valueEntry.index;
+    }
     buffer.setUint16(value.value);
 };
 
 const writeEnumElementValue = (buffer: Buffer, value: EnumElementValue) => {
     buffer.setUint8(ElementTag.ENUM.charCodeAt(0));
+    if (value.typeNameEntry) {
+        value.typeName = value.typeNameEntry.index;
+    }
     buffer.setUint16(value.typeName);
+    if (value.constNameEntry) {
+        value.constName = value.constNameEntry.index;
+    }
     buffer.setUint16(value.constName);
 };
 
 const writeClassElementValue = (buffer: Buffer, value: ClassElementValue) => {
     buffer.setUint8(ElementTag.CLASS.charCodeAt(0));
+    if (value.classInfoEntry) {
+        value.classInfo = value.classInfoEntry.index;
+    }
     buffer.setUint16(value.classInfo);
 };
 
